@@ -1,0 +1,17 @@
+{
+    "name": "vk-photo-download",
+    "version": "0.0.1",
+    "description": "Скрипт для работы кнопки скачивания фотографии в режиме просмотра. Работает в паре с расширением Download Master",
+    "main": "scripts/photo-download.js",
+    "scripts": {
+        "dev": "gulp"
+    },
+    "author": "neyasbltb88",
+    "license": "ISC",
+    "dependencies": {},
+    "devDependencies": {
+        "browser-sync": "^2.26.3",
+        "gulp": "^3.9.1",
+        "gulp-livereload": "^4.0.1"
+    }
+}
