@@ -27,7 +27,30 @@ class PhotoDownload {
             ], // Конец click
         };
 
+        // id, который добавится тегу style
         this.style_id = 'PhotoDownloadStyle';
+        // Объект, генерирующий разноцветные иконки
+        this.icons = {
+            _colors: {
+                green: '#00B75A',
+                red: '#F92672',
+                white: '#FFFFFF',
+                yellow: '#FFC000',
+            },
+            _prefix: 'data:image/svg+xml;charset=utf-8,',
+            /* html */
+            _template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
+                            <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
+                        </svg>`,
+            _temp: function(color) {
+                return this._template.replace(/\{\{.*\}\}/gm, color ? color : 'white');
+            },
+            get(color, url = true) {
+                let _color = this._colors[color] ? this._colors[color] : color;
+                let svg = this._temp(_color).replace(/[\s]{2,}/gm, ' ');
+                return url ? this._prefix + encodeURI(svg) : svg;
+            }
+        }
 
 
         // Точка входа
