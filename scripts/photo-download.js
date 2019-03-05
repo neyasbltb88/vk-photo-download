@@ -5,21 +5,26 @@ class PhotoDownload {
 
         // Объект с описанием обработчиков
         this.triggers = {
-            mouseover: {
-                imgContainer: {
+            mouseover: [
+                // Селектор ссылки, в которую обернута картинка в просмотрщике
+                {
                     type: 'id',
                     selector: this.imgContainer_id,
+                    // handler: this._createDownloadContainer,
                     handler: this.test,
+                    child: true,
                 },
-            }, // Конец mouseover
-            click: {
+            ], // Конец mouseover
+
+            click: [
                 // Для теста
-                pv_comments: {
+                {
                     type: 'id',
                     selector: 'pv_comments',
                     handler: this.test,
+                    child: true,
                 },
-            }, // Конец click
+            ], // Конец click
         };
 
         this.style_id = 'PhotoDownloadStyle';
@@ -27,6 +32,16 @@ class PhotoDownload {
 
         // Точка входа
         this.init();
+    }
+
+    _createDownloadContainer(elem) {
+        let parent = elem.parentElement;
+
+        let wrap = document.createElement('div');
+        wrap.id = this.photoDownload_id;
+
+        parent.appendChild(wrap);
+
     }
 
     test(elem) {
@@ -43,11 +58,48 @@ class PhotoDownload {
         }, timeout);
     }
 
+    _checkComplianceChild(target, trigger) {
+        let parent = (trigger.type === 'id') ?
+            target.closest('#' + trigger.selector) :
+            target.closest('.' + trigger.selector);
+
+        if (parent) {
+            this._checkComplianceTarget(parent, trigger);
+        }
+    }
+
+    _checkComplianceTarget(target, trigger) {
+        let compliance = false;
+
+        // Два отдельных условия для того, чтобы была возможность назначить
+        // разные обработчики по id и по классу на один элемент, и они сработали оба
+        if (trigger.type === 'id') {
+            if (target.id === trigger.selector) {
+                compliance = true;
+
+                if (trigger.handler) {
+                    this._highlighter(target, 1500);
+                    trigger.handler.call(this, target);
+                }
+            }
+        }
+
+        if (trigger === 'class') {
+            if (target.classList.contains(trigger.selector)) {
+                compliance = true;
+
+                if (trigger.handler) {
+                    this._highlighter(target, 1500);
+                    trigger.handler.call(this, target);
+                }
+            }
+        }
+
+        return compliance;
+    }
+
     // Метод, который вызывает нужный обработчик при нужном событии
     _watchTrigger(event) {
-        // console.log(event);
-        // console.log('type:', event.type);
-
         // Смотрим, есть ли обработчики полученного типа события
         // На самом деле они всегда должны быть, но все же
         let triggers = this.triggers[event.type];
@@ -57,27 +109,15 @@ class PhotoDownload {
         let target = event.target;
 
         // Цикл по объекту обработчиков полученного типа события
-        for (let trigger in triggers) {
-            // Ищем соответствия таргета события и элементов в объекте обработчиков
-
-            if (triggers[trigger].type === 'id') {
-                if (target.id === triggers[trigger].selector) {
-                    if (triggers[trigger].handler) {
-                        this._highlighter(target, 1500);
-                        triggers[trigger].handler.call(this, target);
-                    }
-                }
+        triggers.forEach(trigger => {
+            // Если цели события нет в объекте обработчиков, но в обработчике указано, 
+            // что он может срабатывать на дочернем элементе
+            if (!this._checkComplianceTarget(target, trigger) && trigger.child) {
+                // Попробуем найти родительский элемент цели, соответствующий селектору
+                // из объекта обработчиков
+                this._checkComplianceChild(target, trigger);
             }
-
-            if (triggers[trigger].type === 'class') {
-                if (target.classList.contains(triggers[trigger].selector)) {
-                    if (triggers[trigger].handler) {
-                        this._highlighter(target, 1500);
-                        triggers[trigger].handler.call(this, target);
-                    }
-                }
-            }
-        }
+        });
     }
 
     // Установка на document слушателей типов событий, имеющихся в объекте обработчиков
@@ -91,6 +131,15 @@ class PhotoDownload {
         let style_content = /* css */ `
         .photo_download_highlight {
             outline: 1px solid #f00 !important;
+        }
+
+        #${this.photoDownload_id} {
+            background-color: #fff;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            right: 0;
         }
         `;
 
