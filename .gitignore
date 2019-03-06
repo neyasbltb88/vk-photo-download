@@ -4,3 +4,5 @@ package-lock.json
 /Методы
 /ico
 README.1.md
+/img/**/*.png
+/img/**/*.PNG
