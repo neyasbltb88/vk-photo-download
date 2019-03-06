@@ -1,10 +1,25 @@
 import Download from 'downloadjs';
+import PhotoDownloadTemplates from './templates';
 
 export default class PhotoDownload {
-    constructor() {
-        this.photoDownload_id = 'PhotoDownload';
+    constructor(params = {}) {
+        // Ссылка, в которую обернута картинка, 
+        // здесь нужнв для триггера создания/обновления кнопки
         this.imgContainer_id = 'pv_photo';
-        this.imgContainer_class = 'pv_image_wrap';
+
+        this.selectors = {
+            // id контейнера кнопки
+            photoDownload_id: 'PhotoDownload',
+            // Контейнер, в котором находится картинка и элементы управления,
+            // создавать кнопку будем в нем
+            imgContainer_class: 'pv_image_wrap',
+            // id, который добавится тегу style
+            style_id: 'PhotoDownloadStyle',
+        };
+
+        this.template = new PhotoDownloadTemplates({
+            selectors: this.selectors
+        });
 
         // Объект с описанием обработчиков
         this.triggers = {
@@ -25,31 +40,6 @@ export default class PhotoDownload {
             ], // Конец mouseover
         };
 
-        // id, который добавится тегу style
-        this.style_id = 'PhotoDownloadStyle';
-        // Объект, генерирующий разноцветные иконки
-        this.icons = {
-            _colors: {
-                green: '#00B75A',
-                red: '#F92672',
-                white: '#FFFFFF',
-                yellow: '#FFC000',
-            },
-            _prefix: 'data:image/svg+xml;charset=utf-8,',
-            /* html */
-            _template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
-                            <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
-                        </svg>`,
-            _temp: function(color) {
-                return this._template.replace(/\{\{.*\}\}/gm, color ? color : 'white');
-            },
-            get(color, url = true) {
-                let _color = this._colors[color] ? this._colors[color] : color;
-                let svg = this._temp(_color).replace(/[\s]{2,}/gm, ' ');
-                return url ? this._prefix + encodeURIComponent(svg) : svg;
-            }
-        };
-
         this.last_image_data = {
             src: null,
             width: null,
@@ -62,10 +52,10 @@ export default class PhotoDownload {
     }
 
     _updateBtn(elem) {
-        let parent = elem.closest('.' + this.imgContainer_class);
+        let parent = elem.closest('.' + this.selectors.imgContainer_class);
 
         // Если в родительском контейнере еще нет кнопки
-        if (!parent.querySelector('#' + this.photoDownload_id)) {
+        if (!parent.querySelector('#' + this.selectors.photoDownload_id)) {
             // то создадим ее
             this._createDownloadContainer(elem);
         }
@@ -91,80 +81,17 @@ export default class PhotoDownload {
     }
 
     _createDownloadContainer(elem) {
-        let parent = elem.closest('.' + this.imgContainer_class);
+        let parent = elem.closest('.' + this.selectors.imgContainer_class);
         let wrap = document.createElement('div');
-        wrap.id = this.photoDownload_id;
+        wrap.id = this.selectors.photoDownload_id;
 
-        wrap.innerHTML = this._createInnerElems();
+        wrap.innerHTML = this.template.getInnerElems();
 
         setTimeout(() => {
             wrap.classList.add('ready');
         }, 0);
 
         parent.appendChild(wrap);
-    }
-
-    _createInnerElems() {
-        return /* html */ `
-            <a class="PhotoDownload_btn" href="#!" target="_blank" draggable="false">
-                <div class="PhotoDownload_icon"></div>
-                <div class="PhotoDownload_size"></div>
-            </a>
-        `;
-    }
-
-    _createStyleContent() {
-        return /* css */ `
-        #${this.photoDownload_id} {
-            background-color: #000;
-            border-top-left-radius: 4px;
-            position: absolute;
-            bottom: 0;
-            left: 100%;
-            opacity: 0;
-            transform: translate3d(-38px, 0, 1px);
-            will-change: transform, opacity;
-            transition: opacity .25s ease-in-out, transform .25s ease-in-out !important;
-        }
-        .${this.imgContainer_class}:hover #${this.photoDownload_id}.ready {
-            opacity: .3;
-        }
-        .${this.imgContainer_class} #${this.photoDownload_id}.ready:hover {
-            opacity: .8;
-            transform: translate3d(-100%, 0, 1px);
-        }
-        .PhotoDownload_btn {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-        }
-        .PhotoDownload_btn:hover {
-            text-decoration: none;
-        }
-        .PhotoDownload_icon {
-            background-image: url('${this.icons.get('white')}');
-            background-size: contain;
-            background-repeat: no-repeat;
-            height: 18px;
-            width: 18px;
-        }
-        .PhotoDownload_btn:hover .PhotoDownload_icon {
-            background-image: url('${this.icons.get('green')}');
-        }
-        #${this.photoDownload_id} .PhotoDownload_size:not(.non_size) {
-            padding-left: 10px;
-            color: #C3CFE0 !important;
-        }
-        `;
-    }
-
-    // Метод для тестовой подсветки элемента на котором сработал watcher
-    _highlighter(elem, timeout) {
-        elem.classList.add('photo_download_highlight');
-
-        setTimeout(() => {
-            elem.classList.remove('photo_download_highlight');
-        }, timeout);
     }
 
     _checkComplianceChild(target, trigger) {
@@ -238,8 +165,8 @@ export default class PhotoDownload {
     // Метод добавления на страницу стилей, необходимых для работы PhotoDownload
     _injectCSS() {
         let style = document.createElement('style');
-        style.id = this.style_id;
-        style.textContent = this._createStyleContent();
+        style.id = this.selectors.style_id;
+        style.textContent = this.template.getStyleContent();
 
         document.head.appendChild(style);
     }
