@@ -7,6 +7,11 @@ export default class PhotoDownload {
         // здесь нужнв для триггера создания/обновления кнопки
         this.imgContainer_id = 'pv_photo';
 
+        // Флаг, задающий поведение клика по кнопке
+        // Если true, то картинка будет скачиваться
+        // Если false, то картинка будет открываться в новой вкладке
+        this.flag_download = params.download;
+
         this.selectors = {
             // id контейнера кнопки
             photoDownload_id: 'PhotoDownload',
@@ -15,6 +20,16 @@ export default class PhotoDownload {
             imgContainer_class: 'pv_image_wrap',
             // id, который добавится тегу style
             style_id: 'PhotoDownloadStyle',
+            // Класс кнопки (тега a)
+            PhotoDownload_btn: 'PhotoDownload_btn',
+            // Класс блока иконки
+            PhotoDownload_icon: 'PhotoDownload_icon',
+            // Класс блока, в котором отображается разрешение картинки
+            PhotoDownload_size: 'PhotoDownload_size',
+            // Класс-флаг, вешается на .PhotoDownload_size когда нет данных о разрешении
+            non_size: 'non_size',
+            // Класс-флаг, вешается для плавного opacity кнопки после создания
+            ready: 'ready',
         };
 
         this.template = new PhotoDownloadTemplates({
@@ -33,7 +48,7 @@ export default class PhotoDownload {
                 },
                 {
                     type: 'class',
-                    selector: 'PhotoDownload_btn',
+                    selector: this.selectors.PhotoDownload_btn,
                     handler: this._updateBtn,
                     child: true,
                 },
@@ -51,6 +66,7 @@ export default class PhotoDownload {
         this.init();
     }
 
+    // Метод обновления данных в кнопке
     _updateBtn(elem) {
         let parent = elem.closest('.' + this.selectors.imgContainer_class);
 
@@ -60,26 +76,37 @@ export default class PhotoDownload {
             this._createDownloadContainer(elem);
         }
 
-        let btn = parent.querySelector('.PhotoDownload_btn');
-        let size = parent.querySelector('.PhotoDownload_size');
-        this.last_image_data = window.Photoview.genData(cur.pvCurPhoto);
+        let btn = parent.querySelector('.' + this.selectors.PhotoDownload_btn);
+        let size = parent.querySelector('.' + this.selectors.PhotoDownload_size);
+        this.last_image_data = window.Photoview.genData(window.cur.pvCurPhoto);
 
         // Если ссылка в кнопке не та, которая нужна сейчас
         if (btn.href !== this.last_image_data.src) {
-            console.log('btn.href !== this.last_image_data.src');
-
             btn.href = this.last_image_data.src;
 
+            // Если флаг true, вешаем обработчик для скачивания картинки
+            if (this.flag_download) {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    Download(e.currentTarget.href);
+
+                    return false;
+                }
+            } else {
+                btn.onclick = null;
+            }
+
             if (this.last_image_data.width && this.last_image_data.height) {
-                size.classList.remove('non_size');
+                size.classList.remove(this.selectors.non_size);
                 size.textContent = `${this.last_image_data.width}x${this.last_image_data.height}`;
             } else {
-                size.classList.add('non_size');
+                size.classList.add(this.selectors.non_size);
                 size.textContent = '';
             }
         }
     }
 
+    // Метод создания контейнера с кнопкой
     _createDownloadContainer(elem) {
         let parent = elem.closest('.' + this.selectors.imgContainer_class);
         let wrap = document.createElement('div');
@@ -94,6 +121,7 @@ export default class PhotoDownload {
         parent.appendChild(wrap);
     }
 
+    // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
     _checkComplianceChild(target, trigger) {
         let parent = (trigger.type === 'id') ?
             target.closest('#' + trigger.selector) :
@@ -104,6 +132,7 @@ export default class PhotoDownload {
         }
     }
 
+    // Проверка на соответствие цели события с селекторами объекта триггеров
     _checkComplianceTarget(target, trigger) {
         let compliance = false;
 
@@ -114,7 +143,6 @@ export default class PhotoDownload {
                 compliance = true;
 
                 if (trigger.handler) {
-                    // console.log('> ' + trigger.selector);
                     trigger.handler.call(this, target);
                 }
             }
@@ -125,7 +153,6 @@ export default class PhotoDownload {
                 compliance = true;
 
                 if (trigger.handler) {
-                    // console.log('> ' + trigger.selector);
                     trigger.handler.call(this, target);
                 }
             }

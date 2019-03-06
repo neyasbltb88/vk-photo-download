@@ -1,4 +1,6 @@
 import PhotoDownload from './modules/photo-download';
 
 
-window.photoDownload = new PhotoDownload();
+window.photoDownload = new PhotoDownload({
+    download: true
+});

@@ -28,9 +28,9 @@ export default class PhotoDownloadTemplates {
 
     getInnerElems() {
         return /* html */ `
-            <a class="PhotoDownload_btn" href="#!" target="_blank" draggable="false">
-                <div class="PhotoDownload_icon"></div>
-                <div class="PhotoDownload_size"></div>
+            <a class="${this.selectors.PhotoDownload_btn}" href="#!" target="_blank" draggable="false">
+                <div class="${this.selectors.PhotoDownload_icon}"></div>
+                <div class="${this.selectors.PhotoDownload_size}"></div>
             </a>
         `;
     }
@@ -48,32 +48,32 @@ export default class PhotoDownloadTemplates {
             will-change: transform, opacity;
             transition: opacity .25s ease-in-out, transform .25s ease-in-out !important;
         }
-        .${this.selectors.imgContainer_class}:hover #${this.selectors.photoDownload_id}.ready {
+        .${this.selectors.imgContainer_class}:hover #${this.selectors.photoDownload_id}.${this.selectors.ready} {
             opacity: .3;
         }
-        .${this.selectors.imgContainer_class} #${this.selectors.photoDownload_id}.ready:hover {
+        .${this.selectors.imgContainer_class} #${this.selectors.photoDownload_id}.${this.selectors.ready}:hover {
             opacity: .8;
             transform: translate3d(-100%, 0, 1px);
         }
-        .PhotoDownload_btn {
+        .${this.selectors.PhotoDownload_btn} {
             display: flex;
             align-items: center;
             padding: 10px;
         }
-        .PhotoDownload_btn:hover {
+        .${this.selectors.PhotoDownload_btn}:hover {
             text-decoration: none;
         }
-        .PhotoDownload_icon {
+        .${this.selectors.PhotoDownload_icon} {
             background-image: url('${this.icons.get('white')}');
             background-size: contain;
             background-repeat: no-repeat;
             height: 18px;
             width: 18px;
         }
-        .PhotoDownload_btn:hover .PhotoDownload_icon {
+        .${this.selectors.PhotoDownload_btn}:hover .${this.selectors.PhotoDownload_icon} {
             background-image: url('${this.icons.get('green')}');
         }
-        #${this.selectors.photoDownload_id} .PhotoDownload_size:not(.non_size) {
+        #${this.selectors.photoDownload_id} .${this.selectors.PhotoDownload_size}:not(.${this.selectors.non_size}) {
             padding-left: 10px;
             color: #C3CFE0 !important;
         }
