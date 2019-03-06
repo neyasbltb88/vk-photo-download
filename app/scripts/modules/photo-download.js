@@ -1,4 +1,6 @@
-class PhotoDownload {
+import Download from 'downloadjs';
+
+export default class PhotoDownload {
     constructor() {
         this.photoDownload_id = 'PhotoDownload';
         this.imgContainer_id = 'pv_photo';
@@ -254,7 +256,3 @@ class PhotoDownload {
         this._initWatcher();
     }
 }
-
-
-
-window.photoDownload = new PhotoDownload();
