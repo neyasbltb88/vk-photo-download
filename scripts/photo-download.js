@@ -1,7 +1,8 @@
 class PhotoDownload {
-    constructor(params = {}) {
-        this.photoDownload_id = params.photoDownload_id;
-        this.imgContainer_id = params.imgContainer_id;
+    constructor() {
+        this.photoDownload_id = 'PhotoDownload';
+        this.imgContainer_id = 'pv_photo';
+        this.imgContainer_class = 'pv_image_wrap';
 
         // Объект с описанием обработчиков
         this.triggers = {
@@ -10,21 +11,16 @@ class PhotoDownload {
                 {
                     type: 'id',
                     selector: this.imgContainer_id,
-                    // handler: this._createDownloadContainer,
-                    handler: this.test,
+                    handler: this._updateBtn,
+                    child: true,
+                },
+                {
+                    type: 'class',
+                    selector: 'PhotoDownload_btn',
+                    handler: this._updateBtn,
                     child: true,
                 },
             ], // Конец mouseover
-
-            click: [
-                // Для теста
-                {
-                    type: 'id',
-                    selector: 'pv_comments',
-                    handler: this.test,
-                    child: true,
-                },
-            ], // Конец click
         };
 
         // id, который добавится тегу style
@@ -50,26 +46,114 @@ class PhotoDownload {
                 let svg = this._temp(_color).replace(/[\s]{2,}/gm, ' ');
                 return url ? this._prefix + encodeURI(svg) : svg;
             }
-        }
+        };
+
+        this.last_image_data = {
+            src: null,
+            width: null,
+            height: null,
+        };
 
 
         // Точка входа
         this.init();
     }
 
-    _createDownloadContainer(elem) {
-        let parent = elem.parentElement;
+    _updateBtn(elem) {
+        let parent = elem.closest('.' + this.imgContainer_class);
 
+        // Если в родительском контейнере еще нет кнопки
+        if (!parent.querySelector('#' + this.photoDownload_id)) {
+            // то создадим ее
+            this._createDownloadContainer(elem);
+        }
+
+        let btn = parent.querySelector('.PhotoDownload_btn');
+        let size = parent.querySelector('.PhotoDownload_size');
+        this.last_image_data = window.Photoview.genData(cur.pvCurPhoto);
+
+        // Если ссылка в кнопке не та, которая нужна сейчас
+        if (btn.href !== this.last_image_data.src) {
+            console.log('btn.href !== this.last_image_data.src');
+
+            btn.href = this.last_image_data.src;
+
+            if (this.last_image_data.width && this.last_image_data.height) {
+                size.classList.remove('non_size');
+                size.textContent = `${this.last_image_data.width}x${this.last_image_data.height}`;
+            } else {
+                size.classList.add('non_size');
+                size.textContent = '';
+            }
+        }
+    }
+
+    _createDownloadContainer(elem) {
+        let parent = elem.closest('.' + this.imgContainer_class);
         let wrap = document.createElement('div');
         wrap.id = this.photoDownload_id;
 
-        parent.appendChild(wrap);
+        wrap.innerHTML = this._createInnerElems();
 
+        setTimeout(() => {
+            wrap.classList.add('ready');
+        }, 0);
+
+        parent.appendChild(wrap);
     }
 
-    test(elem) {
-        console.log('Тестовый обработчик');
-        // console.log(elem);
+    _createInnerElems() {
+        return /* html */ `
+            <a class="PhotoDownload_btn" href="#!" target="_blank" draggable="false">
+                <div class="PhotoDownload_icon"></div>
+                <div class="PhotoDownload_size"></div>
+            </a>
+        `;
+    }
+
+    _createStyleContent() {
+        return /* css */ `
+        #${this.photoDownload_id} {
+            background-color: #000;
+            border-top-left-radius: 4px;
+            position: absolute;
+            bottom: 0;
+            left: 100%;
+            opacity: 0;
+            transform: translate3d(-38px, 0, 1px);
+            will-change: transform, opacity;
+            transition: opacity .25s ease-in-out, transform .25s ease-in-out !important;
+        }
+        .${this.imgContainer_class}:hover #${this.photoDownload_id}.ready {
+            opacity: .3;
+        }
+        .${this.imgContainer_class} #${this.photoDownload_id}.ready:hover {
+            opacity: .8;
+            transform: translate3d(-100%, 0, 1px);
+        }
+        .PhotoDownload_btn {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .PhotoDownload_btn:hover {
+            text-decoration: none;
+        }
+        .PhotoDownload_icon {
+            background-image: url('${this.icons.get('white')}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            height: 18px;
+            width: 18px;
+        }
+        .PhotoDownload_btn:hover .PhotoDownload_icon {
+            background-image: url('${this.icons.get('green')}');
+        }
+        #${this.photoDownload_id} .PhotoDownload_size:not(.non_size) {
+            padding-left: 10px;
+            color: #C3CFE0 !important;
+        }
+        `;
     }
 
     // Метод для тестовой подсветки элемента на котором сработал watcher
@@ -101,18 +185,18 @@ class PhotoDownload {
                 compliance = true;
 
                 if (trigger.handler) {
-                    this._highlighter(target, 1500);
+                    // console.log('> ' + trigger.selector);
                     trigger.handler.call(this, target);
                 }
             }
         }
 
-        if (trigger === 'class') {
+        if (trigger.type === 'class') {
             if (target.classList.contains(trigger.selector)) {
                 compliance = true;
 
                 if (trigger.handler) {
-                    this._highlighter(target, 1500);
+                    // console.log('> ' + trigger.selector);
                     trigger.handler.call(this, target);
                 }
             }
@@ -151,24 +235,9 @@ class PhotoDownload {
 
     // Метод добавления на страницу стилей, необходимых для работы PhotoDownload
     _injectCSS() {
-        let style_content = /* css */ `
-        .photo_download_highlight {
-            outline: 1px solid #f00 !important;
-        }
-
-        #${this.photoDownload_id} {
-            background-color: #fff;
-            width: 50px;
-            height: 50px;
-            position: absolute;
-            bottom: 0;
-            right: 0;
-        }
-        `;
-
         let style = document.createElement('style');
         style.id = this.style_id;
-        style.textContent = style_content;
+        style.textContent = this._createStyleContent();
 
         document.head.appendChild(style);
     }
@@ -188,7 +257,4 @@ class PhotoDownload {
 
 
 
-window.photoDownload = new PhotoDownload({
-    photoDownload_id: 'PhotoDownload',
-    imgContainer_id: 'pv_photo',
-});
+window.photoDownload = new PhotoDownload();
