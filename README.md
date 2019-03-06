@@ -24,13 +24,13 @@ JS скрипт, создающий кнопку для скачивания и�
 #### ***Активация***:
 
 - Для теста можно открыть консоль на любой странице ВК и вставить следующий код:
-```js
-fetch('https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/scripts/photo-download.js')
-    .then(response => response.text())
-    .then(response => eval(response))
-```
+  ```js
+  fetch('https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/scripts/photo-download.js')
+      .then(response => response.text())
+      .then(response => eval(response))
+  ```
 
-> ![Вставка скрипта для активации в консоль](https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/img/3.jpg "Вставка скрипта для активации в консоль")
+  > ![Вставка скрипта для активации в консоль](https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/img/3.jpg "Вставка скрипта для активации в консоль")
 
 - Для постоянного использования лучше всего воспользоваться расширением для браузера, которое может добавлять собственные скрипты для указанных сайтов.
   Одним из таких расширений является **[Resource Override](https://chrome.google.com/webstore/detail/resource-override/pkoacgokdfckfpndoffpifphamojphii?hl=ru)**
