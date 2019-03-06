@@ -44,7 +44,7 @@ class PhotoDownload {
             get(color, url = true) {
                 let _color = this._colors[color] ? this._colors[color] : color;
                 let svg = this._temp(_color).replace(/[\s]{2,}/gm, ' ');
-                return url ? this._prefix + encodeURI(svg) : svg;
+                return url ? this._prefix + encodeURIComponent(svg) : svg;
             }
         };
 
