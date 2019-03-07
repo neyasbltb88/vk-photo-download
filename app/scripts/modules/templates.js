@@ -13,8 +13,8 @@ export default class PhotoDownloadTemplates {
                 _prefix: 'data:image/svg+xml;charset=utf-8,',
                 /* html */
                 _template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
-                            <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
-                        </svg>`,
+                                <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
+                            </svg>`,
                 _temp: function(color) {
                     return this._template.replace(/\{\{.*\}\}/gm, color ? color : 'white');
                 },

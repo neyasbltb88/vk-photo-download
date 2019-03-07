@@ -1,23 +1,20 @@
 // Простой livereload
 var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
-    browserSync = require('browser-sync');
+    browserSync = require('browser-sync')
 
 // Для сборки модулей
-var path = require('path');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var browserSync = require('browser-sync');
+var path = require('path')
+var browserify = require('browserify')
+var babelify = require('babelify')
+var browserSync = require('browser-sync')
 var source = require('vinyl-source-stream')
 var buffer = require('vinyl-buffer')
 var rename = require('gulp-rename')
 var sourcemaps = require('gulp-sourcemaps')
 var tap = require('gulp-tap')
 var del = require('del')
-
-// Для красивых уведомлений об ошибках
-var gutil = require('gulp-util')
-var chalk = require('chalk')
+var uglify = require('gulp-uglify')
 
 /* --- Красивое отображение ошибок --- */
 var gutil = require('gulp-util')
@@ -78,6 +75,23 @@ function bundle_js(bundler, name) {
         .pipe(livereload())
 }
 
+function bundle_js_build(bundler, name) {
+    return bundler.bundle()
+        .on('error', map_error)
+        .pipe(source(name))
+        .pipe(buffer())
+        .pipe(rename({ suffix: '.min', prefix: '' }))
+
+    .pipe(uglify())
+        // .pipe(obfuscator())
+        // .pipe(uglify())
+
+    .pipe(gulp.dest('dist'))
+        .pipe(tap(file => {
+            gutil.log(chalk.yellow(`Browserify: `) + chalk.white(file.path))
+        }))
+}
+
 
 /* --- livereload --- */
 gulp.task('browser-sync', function() {
@@ -94,41 +108,41 @@ gulp.task('browser-sync', function() {
 
 
 gulp.task('livereload', function() {
-    browserSync.reload({ stream: false });
-    gulp.src('')
-        .pipe(livereload());
-});
-/* === livereload === */
-
-
+        browserSync.reload({ stream: false })
+        gulp.src('')
+            .pipe(livereload())
+    })
+    /* === livereload === */
 
 /* Файлы, которые надо обрабатывать с помощью browserify */
 const browserify_js_files = [
     './app/scripts/vk-photo-download.js',
 ]
 
-
 gulp.task('watch', ['js', 'browser-sync'], function() {
-    livereload.listen();
+    livereload.listen()
 
     // Будем запускать таск js при изменении любого не минифицированного js
     gulp.watch(['app/**/*.js', '!app/**/*.min.js', '!app/scripts/maps/*.*'], ['js'])
 
     // При изменении html просто перезагружаем браузер
     gulp.watch(['app/**/*.html'], ['livereload'])
-});
+})
 
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['watch'])
 
-gulp.task('clean', function() {
-    return del.sync('dist');
-});
+gulp.task('removedist', function() {
+    return del.sync('dist')
+})
 
-const build_js_files = [
-    './app/scripts/vk-photo-download.min.js',
-]
+gulp.task('build', ['removedist'], function() {
+    let file = './app/scripts/vk-photo-download.js'
+    let file_name = 'vk-photo-download.min.js'
+    let bundler = browserify(file, { debug: true })
+        .transform(babelify, {
+            presets: ["@babel/preset-env"]
+        });
 
-gulp.task('build', ['clean', 'js'], function() {
-    gulp.src(build_js_files).pipe(gulp.dest('./build'));
-});
+    bundle_js_build(bundler, file_name)
+})

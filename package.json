@@ -4,7 +4,8 @@
     "description": "JS скрипт, создающий кнопку для скачивания изображения в максимально доступном разрешении из просмотрщика Вконтакте",
     "main": "scripts/photo-download.js",
     "scripts": {
-        "dev": "gulp"
+        "dev": "gulp",
+        "build": "gulp build"
     },
     "author": "neyasbltb88",
     "license": "ISC",
