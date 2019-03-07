@@ -13,8 +13,8 @@ export default class PhotoDownloadTemplates {
                 _prefix: 'data:image/svg+xml;charset=utf-8,',
                 /* html */
                 _template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
-                                <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
-                            </svg>`,
+                            <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
+                        </svg>`,
                 _temp: function(color) {
                     return this._template.replace(/\{\{.*\}\}/gm, color ? color : 'white');
                 },
@@ -25,6 +25,33 @@ export default class PhotoDownloadTemplates {
                 }
             };
         } // constructor
+
+    // Метод для отображения размеров картинки в кнопке
+    setSize(size, image_data) {
+        if (image_data.width && image_data.height) {
+            size.classList.remove(this.selectors.non_size);
+            size.textContent = `${image_data.width}x${image_data.height}`;
+        } else {
+            size.classList.add(this.selectors.non_size);
+            size.textContent = '';
+        }
+    }
+
+    // Метод создания контейнера с кнопкой
+    createDownloadContainer(parent) {
+        let wrap = document.createElement('div');
+        wrap.id = this.selectors.photoDownload_id;
+
+        wrap.innerHTML = this.getInnerElems();
+
+        setTimeout(() => {
+            wrap.classList.add('ready');
+        }, 0);
+
+        parent.appendChild(wrap);
+
+        return wrap;
+    }
 
     getInnerElems() {
         return /* html */ `

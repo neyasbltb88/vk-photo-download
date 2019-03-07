@@ -42,6 +42,7 @@ JS скрипт, создающий кнопку для скачивания и�
   > ![Конфигурация Resource Override](https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/img/5.jpg "Конфигурация Resource Override")
 
   В открывшийся редактор вставляем содержимое файла **[/scripts/photo-download.js](https://github.com/neyasbltb88/vk-photo-download/blob/master/scripts/photo-download.js)**
+  > ![Конфигурация Resource Override](https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/img/6.jpg "Конфигурация Resource Override")
 
 ***
 

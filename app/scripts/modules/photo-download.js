@@ -1,16 +1,12 @@
-import Download from 'downloadjs';
 import PhotoDownloadTemplates from './templates';
+import HandlersManager from './handlers';
 
 export default class PhotoDownload {
     constructor(params = {}) {
+        let that = this;
         // Ссылка, в которую обернута картинка, 
         // здесь нужнв для триггера создания/обновления кнопки
         this.imgContainer_id = 'pv_photo';
-
-        // Флаг, задающий поведение клика по кнопке
-        // Если true, то картинка будет скачиваться
-        // Если false, то картинка будет открываться в новой вкладке
-        this.flag_download = params.download;
 
         this.selectors = {
             // id контейнера кнопки
@@ -55,70 +51,73 @@ export default class PhotoDownload {
             ], // Конец mouseover
         };
 
-        this.last_image_data = {
-            src: null,
-            width: null,
-            height: null,
+        // Флаг, задающий поведение клика по кнопке
+        // Если true, то картинка будет скачиваться
+        // Если false, то картинка будет открываться в новой вкладке
+        this.flag_download = {
+            _flag: params.download,
+            get flag() {
+                return this._flag;
+            },
+            set flag(val) {
+                if (typeof val === 'boolean') {
+                    this._flag = val;
+                    that._addBtnHandlers(this._flag);
+                }
+            }
         };
+
+        this.handlers = new HandlersManager({
+            PhotoDownload: this
+        });
+
+        this.parent_wrap = null;
+        this.wrap = null;
 
 
         // Точка входа
         this.init();
     }
 
-    // Метод обновления данных в кнопке
-    _updateBtn(elem) {
-        let parent = elem.closest('.' + this.selectors.imgContainer_class);
+    // Добавляет на кнопку обработчики скачивания/открытия в новой вкладке
+    _addBtnHandlers() {
+        if (!this.wrap) return false;
 
-        // Если в родительском контейнере еще нет кнопки
-        if (!parent.querySelector('#' + this.selectors.photoDownload_id)) {
-            // то создадим ее
-            this._createDownloadContainer(elem);
-        }
+        let btn = this.wrap.querySelector('.' + this.selectors.PhotoDownload_btn);
 
-        let btn = parent.querySelector('.' + this.selectors.PhotoDownload_btn);
-        let size = parent.querySelector('.' + this.selectors.PhotoDownload_size);
-        this.last_image_data = window.Photoview.genData(window.cur.pvCurPhoto);
+        // В зависимости от флага вешаем либо обработчик скачивания, либо открытия новой вкладки
+        if (this.flag_download.flag) {
+            // this.handlers.set(btn, 'downloadHandler');
 
-        // Если ссылка в кнопке не та, которая нужна сейчас
-        if (btn.href !== this.last_image_data.src) {
-            btn.href = this.last_image_data.src;
-
-            // Если флаг true, вешаем обработчик для скачивания картинки
-            if (this.flag_download) {
-                btn.onclick = function(e) {
-                    e.preventDefault();
-                    Download(e.currentTarget.href);
-
-                    return false;
-                }
-            } else {
-                btn.onclick = null;
-            }
-
-            if (this.last_image_data.width && this.last_image_data.height) {
-                size.classList.remove(this.selectors.non_size);
-                size.textContent = `${this.last_image_data.width}x${this.last_image_data.height}`;
-            } else {
-                size.classList.add(this.selectors.non_size);
-                size.textContent = '';
-            }
+            this.handlers.set(btn, 'downloadHandler');
+        } else {
+            this.handlers.set(btn, 'newTabHandler');
         }
     }
 
-    // Метод создания контейнера с кнопкой
-    _createDownloadContainer(elem) {
-        let parent = elem.closest('.' + this.selectors.imgContainer_class);
-        let wrap = document.createElement('div');
-        wrap.id = this.selectors.photoDownload_id;
+    // Метод обновления данных в кнопке
+    _updateBtn(elem) {
+        this.parent = elem.closest('.' + this.selectors.imgContainer_class);
 
-        wrap.innerHTML = this.template.getInnerElems();
+        // Если в родительском контейнере еще нет кнопки
+        if (!this.parent.querySelector('#' + this.selectors.photoDownload_id)) {
+            // то создадим ее
+            this.wrap = this.template.createDownloadContainer(this.parent);
+            this._addBtnHandlers();
+        }
 
-        setTimeout(() => {
-            wrap.classList.add('ready');
-        }, 0);
+        let btn = this.wrap.querySelector('.' + this.selectors.PhotoDownload_btn);
+        let size = this.wrap.querySelector('.' + this.selectors.PhotoDownload_size);
 
-        parent.appendChild(wrap);
+        // Получаем из недр ВК информацию о максимальной версии открытой в просмотрщике картинки
+        let image_data = window.Photoview.genData(window.cur.pvCurPhoto);
+
+        // Если ссылка в кнопке не та, которая нужна сейчас
+        if (btn.href !== image_data.src) {
+            btn.href = image_data.src;
+
+            this.template.setSize(size, image_data);
+        }
     }
 
     // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
