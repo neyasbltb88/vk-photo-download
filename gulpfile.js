@@ -80,7 +80,6 @@ function bundle_js_build(bundler, name) {
         .on('error', map_error)
         .pipe(source(name))
         .pipe(buffer())
-        .pipe(rename({ suffix: '.min', prefix: '' }))
 
     .pipe(uglify())
         // .pipe(obfuscator())

@@ -1,5 +1,7 @@
+// Класс для шаблонизации верстки кнопки и ее стилей
 export default class PhotoDownloadTemplates {
     constructor(params = {}) {
+            // Переданный объект селекторов
             this.selectors = params.selectors;
 
             // Объект, генерирующий разноцветные иконки
@@ -15,7 +17,7 @@ export default class PhotoDownloadTemplates {
                 _template: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
                             <path fill="{{color}}" d="M 4,0 4,8 0,8 8,16 16,8 12,8 12,0 4,0 z"/>
                         </svg>`,
-                _temp: function(color) {
+                _temp(color) {
                     return this._template.replace(/\{\{.*\}\}/gm, color ? color : 'white');
                 },
                 get(color, url = true) {
@@ -42,10 +44,11 @@ export default class PhotoDownloadTemplates {
         let wrap = document.createElement('div');
         wrap.id = this.selectors.photoDownload_id;
 
+        // Заполнение контейнера внутренними элементами
         wrap.innerHTML = this.getInnerElems();
 
         setTimeout(() => {
-            wrap.classList.add('ready');
+            wrap.classList.add(this.selectors.ready);
         }, 0);
 
         parent.appendChild(wrap);
@@ -53,6 +56,7 @@ export default class PhotoDownloadTemplates {
         return wrap;
     }
 
+    // Метод, генерирующий верстку самой кнопки
     getInnerElems() {
         return /* html */ `
             <a class="${this.selectors.PhotoDownload_btn}" href="#!" target="_blank" draggable="false">
@@ -62,6 +66,7 @@ export default class PhotoDownloadTemplates {
         `;
     }
 
+    // Метод, шаблонизирующий стили кнопки
     getStyleContent() {
             return /* css */ `
         #${this.selectors.photoDownload_id} {

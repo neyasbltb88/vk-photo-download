@@ -1,10 +1,15 @@
 import Download from 'downloadjs';
 
+// Класс для управления обработчиками внутри кнопки
 export default class HandlersManager {
     constructor(params = {}) {
+            // Переданный инстанс главного класса
             this.PhotoDownload = params.PhotoDownload;
+
+            // Тип события по умолчанию для обработчиков
             this.default_event_name = 'click';
 
+            // Объект с перечислением всех возможных обработчиков
             this.handlers = {
                 testHandler: this._testHandler,
                 preventHandler: this._preventHandler,
@@ -18,11 +23,14 @@ export default class HandlersManager {
     // Если на элементе были другие обработчики - они удаляются
     // В итоге на элементе гарантировано только переданный набор обработчиков
     set(elem, handler_name, event_name = this.default_event_name) {
-        if (!elem) return false;
+        if (!elem || !handler_name) return false;
 
         let result = true;
+
+        // Удаляем все уже имеющиеся обработчики
         this.removeAll(elem, event_name);
 
+        // Ставим нужные
         if (handler_name instanceof Array) {
             handler_name.forEach(name => {
                 this.add(elem, name, event_name);
@@ -38,18 +46,18 @@ export default class HandlersManager {
 
     // Добавить обработчик с переданным именем на элемент
     add(elem, handler_name, event_name = this.default_event_name) {
-        if (!elem || !handler_name || !this.handlers[handler_name]) return false;
+        if (!elem || !handler_name || !this.getHandler(handler_name)) return false;
 
-        elem.addEventListener(event_name, this.handlers[handler_name]);
+        elem.addEventListener(event_name, this.getHandler(handler_name));
 
         return true;
     }
 
     // Удалить обработчик с переданным именем с элемента
     remove(elem, handler_name, event_name = this.default_event_name) {
-        if (!elem || !handler_name || !this.handlers[handler_name]) return false;
+        if (!elem || !handler_name || !this.getHandler(handler_name)) return false;
 
-        elem.removeEventListener(event_name, this.handlers[handler_name]);
+        elem.removeEventListener(event_name, this.getHandler(handler_name));
 
         return true;
     }
@@ -59,7 +67,7 @@ export default class HandlersManager {
         if (!elem) return false;
 
         for (let handler in this.handlers) {
-            elem.removeEventListener(event_name, this.handlers[handler]);
+            elem.removeEventListener(event_name, this.getHandler(handler));
         }
 
         return true;
@@ -108,7 +116,6 @@ export default class HandlersManager {
     // Обработчик кнопки для режима скачивания
     _downloadHandler(e) {
         e.preventDefault();
-        console.log('_downloadHandler');
         Download(e.currentTarget.href);
         return false;
     }

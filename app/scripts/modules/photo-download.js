@@ -4,10 +4,12 @@ import HandlersManager from './handlers';
 export default class PhotoDownload {
     constructor(params = {}) {
         let that = this;
+
         // Ссылка, в которую обернута картинка, 
         // здесь нужнв для триггера создания/обновления кнопки
         this.imgContainer_id = 'pv_photo';
 
+        // Объект всех селекторов, использующихся в кнопке
         this.selectors = {
             // id контейнера кнопки
             photoDownload_id: 'PhotoDownload',
@@ -28,10 +30,6 @@ export default class PhotoDownload {
             ready: 'ready',
         };
 
-        this.template = new PhotoDownloadTemplates({
-            selectors: this.selectors
-        });
-
         // Объект с описанием обработчиков
         this.triggers = {
             mouseover: [
@@ -39,12 +37,15 @@ export default class PhotoDownload {
                 {
                     type: 'id',
                     selector: this.imgContainer_id,
+                    // При наведении на контейнер картинки, будем обновлять(создавать) кнопку
                     handler: this._updateBtn,
                     child: true,
                 },
+                // Селектор родительского блока кнопки
                 {
                     type: 'class',
                     selector: this.selectors.PhotoDownload_btn,
+                    // При наведении на саму кнопку, будем обновлять в ней данные
                     handler: this._updateBtn,
                     child: true,
                 },
@@ -67,12 +68,18 @@ export default class PhotoDownload {
             }
         };
 
+        // Здесь будет храниться элемент кнопки
+        this.wrap = null;
+
+        // Создаем инстанс шаблонизатора верстки
+        this.template = new PhotoDownloadTemplates({
+            selectors: this.selectors
+        });
+
+        // Создаем инстанс контроллера событий внутри кнопки
         this.handlers = new HandlersManager({
             PhotoDownload: this
         });
-
-        this.parent_wrap = null;
-        this.wrap = null;
 
 
         // Точка входа
@@ -87,8 +94,6 @@ export default class PhotoDownload {
 
         // В зависимости от флага вешаем либо обработчик скачивания, либо открытия новой вкладки
         if (this.flag_download.flag) {
-            // this.handlers.set(btn, 'downloadHandler');
-
             this.handlers.set(btn, 'downloadHandler');
         } else {
             this.handlers.set(btn, 'newTabHandler');
@@ -103,6 +108,7 @@ export default class PhotoDownload {
         if (!this.parent.querySelector('#' + this.selectors.photoDownload_id)) {
             // то создадим ее
             this.wrap = this.template.createDownloadContainer(this.parent);
+            // И повесим на нее обработчики
             this._addBtnHandlers();
         }
 
@@ -114,8 +120,10 @@ export default class PhotoDownload {
 
         // Если ссылка в кнопке не та, которая нужна сейчас
         if (btn.href !== image_data.src) {
+            // Обновим ссылку в кнопке
             btn.href = image_data.src;
 
+            // И размеры картинки, которая по ссылке
             this.template.setSize(size, image_data);
         }
     }
@@ -127,6 +135,7 @@ export default class PhotoDownload {
             target.closest('.' + trigger.selector);
 
         if (parent) {
+            // Если да, запустим обработчик для родителя
             this._checkComplianceTarget(parent, trigger);
         }
     }
@@ -172,9 +181,13 @@ export default class PhotoDownload {
 
         // Цикл по объекту обработчиков полученного типа события
         triggers.forEach(trigger => {
+            // Ищем обработчик для цели события
+            // Если вернется false, то не найден
+            let compliance = this._checkComplianceTarget(target, trigger);
+
             // Если цели события нет в объекте обработчиков, но в обработчике указано, 
             // что он может срабатывать на дочернем элементе
-            if (!this._checkComplianceTarget(target, trigger) && trigger.child) {
+            if (!compliance && trigger.child) {
                 // Попробуем найти родительский элемент цели, соответствующий селектору
                 // из объекта обработчиков
                 this._checkComplianceChild(target, trigger);
@@ -205,7 +218,7 @@ export default class PhotoDownload {
         // Добавляем стили PhotoDownload
         this._injectCSS();
 
-        // Инициализируем обработчики событий
+        // Инициализируем обработчики глобальных событий на document
         this._initWatcher();
     }
 }
