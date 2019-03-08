@@ -15,7 +15,7 @@ JS скрипт, создающий кнопку для скачивания и�
 
 - Для теста можно открыть консоль на любой странице ВК и вставить следующий код:
   ```js
-  fetch('https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/scripts/photo-download.js')
+  fetch('https://raw.githubusercontent.com/neyasbltb88/vk-photo-download/master/dist/vk-photo-download.min.js')
       .then(response => response.text())
       .then(response => eval(response))
   ```
