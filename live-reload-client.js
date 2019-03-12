@@ -95,6 +95,7 @@ function liveReloadClientInit() {
                         let scripts_selector = 'script:not(#__bs_script__)';
 
                         this.scripts = Array.from(doc.querySelectorAll(scripts_selector));
+                        this.scripts = this.scripts.filter(script => !script.classList.contains('ignore'))
 
                         this.insertScripts(this.scripts);
                     })
