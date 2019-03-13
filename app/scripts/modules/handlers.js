@@ -160,6 +160,7 @@ export default class HandlersManager {
 
     // Настройки открыты
     _openSettings() {
+        this._openTimingSettings();
         this.PhotoDownload.wrap.classList.add(this.sel.icon_cog);
         this.PhotoDownload.wrap
             .querySelector('.cog')
@@ -169,19 +170,22 @@ export default class HandlersManager {
     }
 
     // Запуск закрытия настроек
-    _closeTimingSettings() {
+    _closeTimingSettings(set_state = true) {
         this.PhotoDownload.wrap
             .querySelector('.cog')
             .classList.remove(this.sel.draw, this.sel.draw_fill);
         this.PhotoDownload.wrap.classList.remove(this.sel.settings_open);
 
-        setTimeout(() => {
-            this.PhotoDownload.state.settings = 'close';
-        }, this.timings.close_settings);
+        if (set_state) {
+            setTimeout(() => {
+                this.PhotoDownload.state.settings = 'close';
+            }, this.timings.close_settings);
+        }
     }
 
     // Настройки закрыты
     _closeSettings() {
+        this._closeTimingSettings(false);
         this.PhotoDownload.wrap.classList.remove(this.sel.icon_cog);
         this.PhotoDownload.wrap.classList.remove(this.sel.settings);
     }

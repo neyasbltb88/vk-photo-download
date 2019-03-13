@@ -1,5 +1,6 @@
 import PhotoDownloadTemplates from './templates';
 import HandlersManager from './handlers';
+import SStorage from './storage';
 
 export default class PhotoDownload {
     constructor(params = {}) {
@@ -118,8 +119,15 @@ export default class PhotoDownload {
             },
             set download_mode(val) {
                 if (typeof val === 'boolean') {
-                    this._download_mode = val;
                     console.log('%c%s', (window.log_color) ? window.log_color.purple : '', 'download_mode: ' + val);
+
+                    this._download_mode = val;
+                    that._saveSettings();
+
+                    let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
+                    if (upd === null) return null
+
+                    that.handlers.setSettingsState();
                 }
             }, // _download_mode
         };
@@ -131,10 +139,14 @@ export default class PhotoDownload {
             },
             set settings(val) {
                 if (typeof val === 'string') {
-                    this._settings = val;
-                    console.log('set settings: ', val);
-
                     console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'state_settings: ' + val);
+
+                    this._settings = val;
+                    that._saveState();
+
+                    let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
+                    if (upd === null) return null
+
                     that.handlers.applyState();
                 }
             }, // _settings
@@ -163,6 +175,16 @@ export default class PhotoDownload {
             timings: this.timings,
         });
 
+        // Создаем инстанс хранилища
+        this.storage = new SStorage({
+            // 'PhotoDownload'
+            name: this.selectors.photoDownload_id,
+            default: {
+                settings: this.settings,
+                state: this.state,
+            }
+        });
+
 
         // Точка входа
         this.init();
@@ -170,7 +192,9 @@ export default class PhotoDownload {
 
     // Метод обновления данных в кнопке
     _updateBtn(elem) {
+        if (!elem) return null;
         this.parent = elem.closest('.' + this.selectors.imgContainer_class);
+        if (!this.parent) return null;
 
         // Если в родительском контейнере еще нет кнопки
         if (!this.parent.querySelector('#' + this.selectors.photoDownload_id)) {
@@ -201,6 +225,40 @@ export default class PhotoDownload {
             // И размеры картинки, которая по ссылке
             this.template.setSize(size, image_data);
         }
+    }
+
+    // === Watcher ===
+
+    // Установка на document слушателей типов событий, имеющихся в объекте обработчиков
+    _initWatcher() {
+        let types = Object.keys(this.triggers);
+        types.forEach(type => document.addEventListener(type, this._watchTrigger.bind(this)))
+    }
+
+    // Метод, который вызывает нужный обработчик при нужном событии
+    _watchTrigger(event) {
+        // Смотрим, есть ли обработчики полученного типа события
+        // На самом деле они всегда должны быть, но все же
+        let triggers = this.triggers[event.type];
+        if (triggers === undefined) return;
+
+        // Берем элемент, на котором сработало событие
+        let target = event.target;
+
+        // Цикл по объекту обработчиков полученного типа события
+        triggers.forEach(trigger => {
+            // Ищем обработчик для цели события
+            // Если вернется false, то не найден
+            let compliance = this._checkComplianceTarget(target, trigger);
+
+            // Если цели события нет в объекте обработчиков, но в обработчике указано, 
+            // что он может срабатывать на дочернем элементе
+            if (!compliance && trigger.child) {
+                // Попробуем найти родительский элемент цели, соответствующий селектору
+                // из объекта обработчиков
+                this._checkComplianceChild(target, trigger);
+            }
+        });
     }
 
     // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
@@ -244,37 +302,33 @@ export default class PhotoDownload {
         return compliance;
     }
 
-    // Метод, который вызывает нужный обработчик при нужном событии
-    _watchTrigger(event) {
-        // Смотрим, есть ли обработчики полученного типа события
-        // На самом деле они всегда должны быть, но все же
-        let triggers = this.triggers[event.type];
-        if (triggers === undefined) return;
+    // --- Watcher ---
 
-        // Берем элемент, на котором сработало событие
-        let target = event.target;
+    // === Storage ===
 
-        // Цикл по объекту обработчиков полученного типа события
-        triggers.forEach(trigger => {
-            // Ищем обработчик для цели события
-            // Если вернется false, то не найден
-            let compliance = this._checkComplianceTarget(target, trigger);
+    _saveSettings() {
+        let res = this.storage.set('settings', this.settings);
+        console.log(res);
+    }
 
-            // Если цели события нет в объекте обработчиков, но в обработчике указано, 
-            // что он может срабатывать на дочернем элементе
-            if (!compliance && trigger.child) {
-                // Попробуем найти родительский элемент цели, соответствующий селектору
-                // из объекта обработчиков
-                this._checkComplianceChild(target, trigger);
+    _saveState() {
+        let res = this.storage.set('state', this.state);
+        console.log(res);
+    }
+
+    _restoreStorage() {
+        let storage = this.storage.getAll();
+
+        for (let storage_obj in storage) {
+            for (let obj in storage[storage_obj]) {
+                if (obj.charAt(0) !== '_') {
+                    this[storage_obj][obj] = storage[storage_obj][obj];
+                }
             }
-        });
+        }
     }
 
-    // Установка на document слушателей типов событий, имеющихся в объекте обработчиков
-    _initWatcher() {
-        let types = Object.keys(this.triggers);
-        types.forEach(type => document.addEventListener(type, this._watchTrigger.bind(this)))
-    }
+    // --- Storage ---
 
     // Метод добавления на страницу стилей, необходимых для работы PhotoDownload
     _injectCSS() {
@@ -290,6 +344,9 @@ export default class PhotoDownload {
     init() {
         console.clear();
         console.log('%c%s', (window.log_color) ? window.log_color.blue : '', 'PhotoDownload: Init');
+
+        // Восстанавливаем сохраненное в LocalStorage состояние
+        this._restoreStorage();
 
         // Добавляем стили PhotoDownload
         this._injectCSS();
