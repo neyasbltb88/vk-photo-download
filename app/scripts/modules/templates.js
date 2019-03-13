@@ -4,6 +4,9 @@ export default class PhotoDownloadTemplates {
             // Переданный объект селекторов
             this.sel = params.selectors;
 
+            // Переданный объект таймингов
+            this.timings = params.timings;
+
             // Объект, генерирующий разноцветные иконки
             this.icons = {
                 _colors: {
@@ -78,10 +81,6 @@ export default class PhotoDownloadTemplates {
         setTimeout(() => {
             wrap.classList.add(this.sel.ready);
             // Для теста, чтобы настройки сразу открыты были
-            wrap.classList.add(this.sel.settings);
-            wrap.classList.add(this.sel.settings_open);
-
-            wrap.querySelector('.cog').classList.add(this.sel.draw);
         }, 0);
 
         parent.appendChild(wrap);
@@ -99,9 +98,9 @@ export default class PhotoDownloadTemplates {
                         <div class="${this.sel.get('sett.settings_header_text')}">Режим клика</div>
                     </div>
                     <div class="${this.sel.get('sett.settings_body')}">
-                        <ul class="${this.sel.get('sett.settings_mode')}">
+                        <ul class="${this.sel.get('sett.download_mode')}">
                             <li class="${this.sel.get('sett.settings_item')}">
-                                <input type="radio" id="${this.sel.download_mode_true}" name="download_mode" value="true" checked>
+                                <input type="radio" id="${this.sel.download_mode_true}" name="download_mode" value="true">
                                 <label for="${this.sel.download_mode_true}" class="${this.sel.get('sett.settings_item_action')}">Скачать</label>
                             </li>
                             <li class="${this.sel.get('sett.settings_item')}">
@@ -218,25 +217,19 @@ export default class PhotoDownloadTemplates {
             
             #${this.sel.get('photoDownload_id')} .${this.sel.get('btn.main_title_inner')} {
                 will-change: transform;
-                transition: transform .25s ease-out !important;
+                transition: transform ${this.timings.close_settings}ms ease-out !important;
             }
             
             .${this.sel.get('btn.main_title_inner')} * {
                 margin-bottom: 14px;
             }
             
-            #${this.sel.photoDownload_id}.${this.sel.settings} .${this.sel.get('btn.main_title_inner')} {
-                transform: translate3d(0, -28px, 1px);
+            #${this.sel.photoDownload_id}.${this.sel.settings_open} .${this.sel.get('btn.main_title_inner')} {
+                transform: translate3d(0, -29px, 1px);
             }
             
-            #${this.sel.photoDownload_id}.${this.sel.settings} .${this.sel.get('btn.icon')} {
+            #${this.sel.photoDownload_id}.${this.sel.icon_cog} .${this.sel.get('btn.icon')} {
                 background-image: none;
-            }
-            
-            #${this.sel.photoDownload_id}.${this.sel.settings} .${this.sel.get('btn.icon')} .cog {
-                width: 18px;
-                height: 18px;
-                transform: rotate(30deg);
             }
             
             #${this.sel.photoDownload_id}:not(.${this.sel.settings}) .${this.sel.get('sett.settings_wrap')} {
@@ -255,7 +248,7 @@ export default class PhotoDownloadTemplates {
                 width: 150px;
                 will-change: transform;
                 transform: translate3d(0, 100%, 1px);
-                transition: transform .25s ease-out !important;
+                transition: transform ${this.timings.close_settings}ms ease-out !important;
                 user-select: none;
             }
             
@@ -307,7 +300,7 @@ export default class PhotoDownloadTemplates {
                 font-weight: bold;
             }
             
-            .${this.sel.get('sett.settings_mode')} {
+            .${this.sel.get('sett.download_mode')} {
                 padding: 0;
                 margin: 0;
                 list-style: none;
@@ -356,15 +349,21 @@ export default class PhotoDownloadTemplates {
                 background-image: url('${this.icons.get('green', 'check_circle')}');
             }
             
-            .cog .cog_circle {
+            #${this.sel.get('photoDownload_id')} .cog {
+                width: 18px;
+                height: 18px;
+                transform: rotate(30deg);
+                opacity: 0;
+            }
+
+            #${this.sel.photoDownload_id}.${this.sel.icon_cog} .${this.sel.get('btn.icon')} .cog {
+                opacity: 1;
+            }
+
+            #${this.sel.get('photoDownload_id')} .cog .cog_circle {
                 fill: none;
                 fill-opacity: 0;
                 stroke-width: 25;
-            }
-            
-            #${this.sel.get('photoDownload_id')} .cog.${this.sel.draw} .cog_path {
-                transition: stroke-dashoffset .5s linear, fill-opacity .1s ease-out !important;
-                stroke-dashoffset: 0;
             }
 
             #${this.sel.get('photoDownload_id')} .cog .cog_path {
@@ -373,7 +372,12 @@ export default class PhotoDownloadTemplates {
                 stroke-width: 25;
                 stroke-dasharray: 1669;
                 stroke-dashoffset: 1669;
-                transition: stroke-dashoffset .1s linear, fill-opacity .1s ease-out !important;
+                transition: stroke-dashoffset ${this.timings.close_settings}ms linear, fill-opacity ${this.timings.fill}ms ease-out !important;
+            }
+            
+            #${this.sel.get('photoDownload_id')} .cog.${this.sel.draw} .cog_path {
+                transition: stroke-dashoffset ${this.timings.open}ms linear, fill-opacity ${this.timings.fill}ms ease-out !important;
+                stroke-dashoffset: 0;
             }
             
             #${this.sel.photoDownload_id} .cog.${this.sel.draw_fill} .cog_path {

@@ -11,7 +11,7 @@ export default class PhotoDownload {
 
         // Объект всех селекторов, использующихся в кнопке
         this.selectors = {
-            _prefix: 'PhotoDownload',
+            _prefix: 'PhotoDownload_',
             // id контейнера кнопки
             photoDownload_id: 'PhotoDownload',
             // Контейнер, в котором находится картинка и элементы управления,
@@ -30,6 +30,7 @@ export default class PhotoDownload {
 
             draw: 'draw',
             draw_fill: 'draw_fill',
+            icon_cog: 'icon_cog',
 
             download_mode_true: 'download_mode_true',
             download_mode_false: 'download_mode_false',
@@ -41,7 +42,7 @@ export default class PhotoDownload {
                 settings_header_ico: 'settings_header_ico',
                 settings_header_text: 'settings_header_text',
                 settings_body: 'settings_body',
-                settings_mode: 'settings_mode',
+                download_mode: 'download_mode',
                 settings_item: 'settings_item',
                 settings_item_action: 'settings_item_action',
             },
@@ -77,7 +78,7 @@ export default class PhotoDownload {
                     })
 
                     // И если селектор существует, дописываем к нему префикс
-                    res = (error || !res) ? undefined : `${this._prefix}_${res}`;
+                    res = (error || !res) ? undefined : this._prefix + res;
                 }
 
                 return res;
@@ -106,52 +107,65 @@ export default class PhotoDownload {
             ], // Конец mouseover
         };
 
-        // Флаг, задающий поведение клика по кнопке
-        // Если true, то картинка будет скачиваться
-        // Если false, то картинка будет открываться в новой вкладке
-        this.flag_download = {
-            _flag: params.download,
-            get flag() {
-                return this._flag;
+        // Объект, хранящий настройки поведения кнопки
+        this.settings = {
+            // download_mode - флаг, задающий поведение клика по кнопке
+            // Если true, то картинка будет скачиваться
+            // Если false, то картинка будет открываться в новой вкладке
+            _download_mode: params.download,
+            get download_mode() {
+                return this._download_mode;
             },
-            set flag(val) {
+            set download_mode(val) {
                 if (typeof val === 'boolean') {
-                    this._flag = val;
-                    that._addBtnHandlers(this._flag);
+                    this._download_mode = val;
+                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', 'download_mode: ' + val);
                 }
-            }
+            }, // _download_mode
         };
+
+        this.state = {
+            _settings: 'close',
+            get settings() {
+                return this._settings;
+            },
+            set settings(val) {
+                if (typeof val === 'string') {
+                    this._settings = val;
+                    console.log('set settings: ', val);
+
+                    console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'state_settings: ' + val);
+                    that.handlers.applyState();
+                }
+            }, // _settings
+        }
+
+        this.timings = {
+            delay: 250,
+            open: 750,
+            close_settings: 250,
+            fill: 100,
+        }
 
         // Здесь будет храниться элемент кнопки
         this.wrap = null;
 
         // Создаем инстанс шаблонизатора верстки
         this.template = new PhotoDownloadTemplates({
-            selectors: this.selectors
+            selectors: this.selectors,
+            timings: this.timings,
         });
 
         // Создаем инстанс контроллера событий внутри кнопки
         this.handlers = new HandlersManager({
-            PhotoDownload: this
+            PhotoDownload: this,
+            selectors: this.selectors,
+            timings: this.timings,
         });
 
 
         // Точка входа
         this.init();
-    }
-
-    // Добавляет на кнопку обработчики скачивания/открытия в новой вкладке
-    _addBtnHandlers() {
-        if (!this.wrap) return false;
-
-        let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
-
-        // В зависимости от флага вешаем либо обработчик скачивания, либо открытия новой вкладки
-        if (this.flag_download.flag) {
-            this.handlers.set(btn, 'downloadHandler');
-        } else {
-            this.handlers.set(btn, 'newTabHandler');
-        }
     }
 
     // Метод обновления данных в кнопке
@@ -162,8 +176,15 @@ export default class PhotoDownload {
         if (!this.parent.querySelector('#' + this.selectors.photoDownload_id)) {
             // то создадим ее
             this.wrap = this.template.createDownloadContainer(this.parent);
-            // И повесим на нее обработчики
-            this._addBtnHandlers();
+
+            // Применим состояние настроек
+            this.handlers.setSettingsState();
+
+            // Применим состояние кнопки
+            this.handlers.applyState();
+
+            // Повесим на нее обработчики
+            this.handlers.setHandlers();
         }
 
         let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
@@ -267,6 +288,7 @@ export default class PhotoDownload {
 
     // Точка входа
     init() {
+        console.clear();
         console.log('%c%s', (window.log_color) ? window.log_color.blue : '', 'PhotoDownload: Init');
 
         // Добавляем стили PhotoDownload
