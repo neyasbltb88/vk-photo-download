@@ -142,7 +142,7 @@ export default class PhotoDownloadTemplates {
                 opacity: 0;
                 transform: translate3d(-38px, 0, 1px);
                 will-change: transform, opacity;
-                transition: opacity .25s ease-in-out, transform .25s ease-in-out !important;
+                transition: opacity ${this.timings.btn_transition_opacity}ms ease-in-out, transform ${this.timings.btn_transition_transform}ms ease-in-out !important;
             }
             
             .${this.sel.imgContainer_class}:hover #${this.sel.photoDownload_id}.${this.sel.ready} {
@@ -178,12 +178,16 @@ export default class PhotoDownloadTemplates {
             .${this.sel.get('btn.btn')}:hover .${this.sel.get('btn.icon')} {
                 background-image: url('${this.icons.get('green', 'arrow')}');
             }
-            
-            #${this.sel.photoDownload_id} .${this.sel.get('btn.size')}:not(.non_size) {
-                padding-left: 10px;
+
+            #${this.sel.photoDownload_id} .${this.sel.get('btn.size')} {
                 color: #C3CFE0 !important;
                 flex-grow: 1;
                 text-align: center;
+                height: 15px;
+            }
+            
+            #${this.sel.photoDownload_id} .${this.sel.get('btn.size')}:not(.non_size) {
+                
             }
             
             #${this.sel.photoDownload_id}.${this.sel.settings} {
@@ -217,7 +221,7 @@ export default class PhotoDownloadTemplates {
             
             #${this.sel.get('photoDownload_id')} .${this.sel.get('btn.main_title_inner')} {
                 will-change: transform;
-                transition: transform ${this.timings.close_settings}ms ease-out !important;
+                transition: transform ${this.timings.settings_open}ms ease-out !important;
             }
             
             .${this.sel.get('btn.main_title_inner')} * {
@@ -248,7 +252,7 @@ export default class PhotoDownloadTemplates {
                 width: 150px;
                 will-change: transform;
                 transform: translate3d(0, 100%, 1px);
-                transition: transform ${this.timings.close_settings}ms ease-out !important;
+                transition: transform ${this.timings.settings_open}ms ease-out !important;
                 user-select: none;
             }
             
@@ -372,7 +376,7 @@ export default class PhotoDownloadTemplates {
                 stroke-width: 25;
                 stroke-dasharray: 1669;
                 stroke-dashoffset: 1669;
-                transition: stroke-dashoffset ${this.timings.close_settings}ms linear, fill-opacity ${this.timings.fill}ms ease-out !important;
+                transition: stroke-dashoffset ${this.timings.settings_open}ms linear, fill-opacity ${this.timings.fill}ms ease-out !important;
             }
             
             #${this.sel.get('photoDownload_id')} .cog.${this.sel.draw} .cog_path {

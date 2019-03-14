@@ -179,7 +179,7 @@ export default class HandlersManager {
         if (set_state) {
             setTimeout(() => {
                 this.PhotoDownload.state.settings = 'close';
-            }, this.timings.close_settings);
+            }, this.timings.settings_open);
         }
     }
 

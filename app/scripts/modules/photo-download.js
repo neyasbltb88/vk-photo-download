@@ -68,7 +68,7 @@ export default class PhotoDownload {
                 // Если селектор на верхнем уровне объекта, он отдается как есть
                 if (sel.length === 1) {
                     res = this[sel];
-                } else {
+                } else if (sel.length > 1) {
                     // Иначе получаем селектор из вложенных уровней
                     sel.forEach(part => {
                         try {
@@ -108,7 +108,7 @@ export default class PhotoDownload {
             ], // Конец mouseover
         };
 
-        // Объект, хранящий настройки поведения кнопки
+        // Настройки поведения кнопки
         this.settings = {
             // download_mode - флаг, задающий поведение клика по кнопке
             // Если true, то картинка будет скачиваться
@@ -119,19 +119,18 @@ export default class PhotoDownload {
             },
             set download_mode(val) {
                 if (typeof val === 'boolean') {
-                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', 'download_mode: ' + val);
-
                     this._download_mode = val;
                     that._saveSettings();
 
                     let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
-                    if (upd === null) return null
+                    if (upd === null) return null;
 
                     that.handlers.setSettingsState();
                 }
             }, // _download_mode
         };
 
+        // Визуальное состояние кнопки
         this.state = {
             _settings: 'close',
             get settings() {
@@ -139,24 +138,25 @@ export default class PhotoDownload {
             },
             set settings(val) {
                 if (typeof val === 'string') {
-                    console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'state_settings: ' + val);
-
                     this._settings = val;
                     that._saveState();
 
                     let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
-                    if (upd === null) return null
+                    if (upd === null) return null;
 
                     that.handlers.applyState();
                 }
             }, // _settings
         }
 
+        // Объект хранения таймингов для синхронизации контроллера и анимаций
         this.timings = {
             delay: 250,
-            open: 750,
-            close_settings: 250,
+            open: 600,
+            settings_open: 250,
             fill: 100,
+            btn_transition_opacity: 250,
+            btn_transition_transform: 250,
         }
 
         // Здесь будет храниться элемент кнопки
@@ -261,18 +261,6 @@ export default class PhotoDownload {
         });
     }
 
-    // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
-    _checkComplianceChild(target, trigger) {
-        let parent = (trigger.type === 'id') ?
-            target.closest('#' + trigger.selector) :
-            target.closest('.' + trigger.selector);
-
-        if (parent) {
-            // Если да, запустим обработчик для родителя
-            this._checkComplianceTarget(parent, trigger);
-        }
-    }
-
     // Проверка на соответствие цели события с селекторами объекта триггеров
     _checkComplianceTarget(target, trigger) {
         let compliance = false;
@@ -300,6 +288,18 @@ export default class PhotoDownload {
         }
 
         return compliance;
+    }
+
+    // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
+    _checkComplianceChild(target, trigger) {
+        let parent = (trigger.type === 'id') ?
+            target.closest('#' + trigger.selector) :
+            target.closest('.' + trigger.selector);
+
+        if (parent) {
+            // Если да, запустим обработчик для родителя
+            this._checkComplianceTarget(parent, trigger);
+        }
     }
 
     // --- Watcher ---
