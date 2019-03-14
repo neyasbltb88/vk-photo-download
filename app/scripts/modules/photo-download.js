@@ -36,16 +36,20 @@ export default class PhotoDownload {
             download_mode_true: 'download_mode_true',
             download_mode_false: 'download_mode_false',
 
+            size_mode_control: 'size_mode_control',
+
             sett: {
                 settings_wrap: 'settings_wrap',
                 settings: 'settings',
-                settings_header: 'settings_header',
-                settings_header_ico: 'settings_header_ico',
-                settings_header_text: 'settings_header_text',
                 settings_body: 'settings_body',
                 download_mode: 'download_mode',
+                size_mode: 'size_mode',
                 settings_item: 'settings_item',
                 settings_item_action: 'settings_item_action',
+
+                settings_close_ico: 'settings_close_ico',
+                settings_section: 'settings_section',
+                settings_section_header: 'settings_section_header',
             },
 
             btn: {
@@ -308,12 +312,10 @@ export default class PhotoDownload {
 
     _saveSettings() {
         let res = this.storage.set('settings', this.settings);
-        console.log(res);
     }
 
     _saveState() {
         let res = this.storage.set('state', this.state);
-        console.log(res);
     }
 
     _restoreStorage() {

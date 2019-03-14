@@ -275,7 +275,6 @@ export default class HandlersManager {
     // Отменяет действие браузера
     _preventHandler(e) {
         e.preventDefault();
-        console.log('_preventHandler');
         return false;
     }
 
