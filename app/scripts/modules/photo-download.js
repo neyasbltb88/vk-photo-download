@@ -21,10 +21,13 @@ export default class PhotoDownload {
             // id, который добавится тегу style
             style_id: 'PhotoDownloadStyle',
 
-            // Класс-флаг, вешается на .PhotoDownload_size когда нет данных о разрешении
+            // Класс-флаг, вешается на #PhotoDownload когда нет данных о разрешении
+            // или в настройках отключен показ размеров картинки
             non_size: 'non_size',
             // Класс-флаг, вешается для плавного opacity кнопки после создания
             ready: 'ready',
+
+            slide_in: 'slide_in',
 
             settings: 'settings',
             settings_open: 'settings_open',
@@ -132,6 +135,26 @@ export default class PhotoDownload {
                     that.handlers.setSettingsState();
                 }
             }, // _download_mode
+
+            // show_size - флаг, отвечающий за показ размеров картинки при наведении на кнопку,
+            // и соответственно, за выезжающую анимацию при наведении.
+            // Если true, то размеры показываются
+            // Если false, то размеры скрыты
+            _show_size: true,
+            get show_size() {
+                return this._show_size;
+            },
+            set show_size(val) {
+                if (typeof val === 'boolean') {
+                    this._show_size = val;
+                    that._saveSettings();
+
+                    let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
+                    if (upd === null) return null;
+
+                    that.handlers.setSettingsState();
+                }
+            }, // _show_size
         };
 
         // Визуальное состояние кнопки
@@ -216,19 +239,15 @@ export default class PhotoDownload {
         }
 
         let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
-        let size = this.wrap.querySelector('.' + this.selectors.get('btn.size'));
 
         // Получаем из недр ВК информацию о максимальной версии открытой в просмотрщике картинки
         let image_data = window.Photoview.genData(window.cur.pvCurPhoto);
 
-        // Если ссылка в кнопке не та, которая нужна сейчас
-        if (btn.href !== image_data.src) {
-            // Обновим ссылку в кнопке
-            btn.href = image_data.src;
+        // Обновим ссылку в кнопке
+        btn.href = image_data.src;
 
-            // И размеры картинки, которая по ссылке
-            this.template.setSize(size, image_data);
-        }
+        // И размеры картинки, которая по ссылке
+        this.template.setSize(this.wrap, image_data, this.settings.show_size);
     }
 
     // === Watcher ===
@@ -312,10 +331,12 @@ export default class PhotoDownload {
 
     _saveSettings() {
         let res = this.storage.set('settings', this.settings);
+        // console.log(res);
     }
 
     _saveState() {
         let res = this.storage.set('state', this.state);
+        // console.log(res);
     }
 
     _restoreStorage() {
@@ -323,11 +344,13 @@ export default class PhotoDownload {
 
         for (let storage_obj in storage) {
             for (let obj in storage[storage_obj]) {
-                if (obj.charAt(0) !== '_') {
+                if (obj.charAt(0) === '_') {
                     this[storage_obj][obj] = storage[storage_obj][obj];
                 }
             }
         }
+
+        this._updateBtn(document.querySelector('#' + this.imgContainer_id));
     }
 
     // --- Storage ---
@@ -347,11 +370,11 @@ export default class PhotoDownload {
         console.clear();
         console.log('%c%s', (window.log_color) ? window.log_color.blue : '', 'PhotoDownload: Init');
 
-        // Восстанавливаем сохраненное в LocalStorage состояние
-        this._restoreStorage();
-
         // Добавляем стили PhotoDownload
         this._injectCSS();
+
+        // Восстанавливаем сохраненное в LocalStorage состояние
+        this._restoreStorage();
 
         // Инициализируем обработчики глобальных событий на document
         this._initWatcher();

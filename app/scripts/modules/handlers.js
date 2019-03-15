@@ -22,8 +22,9 @@ export default class HandlersManager {
                 downloadHandler: this._downloadHandler.bind(this),
                 startTimer: this._startTimer.bind(this),
                 checkTimer: this._checkTimer.bind(this),
-                closeTimingSettings: () => this.PhotoDownload.state.settings = 'close_timing',
+                closeTimingSettings: () => this.PhotoDownload.state.settings = 'close',
                 downloadModeHandler: this._downloadModeHandler.bind(this),
+                showSizeHandler: this._showSizeHandler.bind(this),
             }
 
             this.timers = {
@@ -32,16 +33,7 @@ export default class HandlersManager {
             };
         } // constructor
 
-    setSettingsState() {
-        let wrap = this.PhotoDownload.wrap;
-        if (!wrap) return false;
-
-        let download_mode = this.PhotoDownload.settings.download_mode.toString();
-        let download_mode_block = wrap.querySelector('.' + this.sel.get('sett.download_mode'));
-        let download_mode_control = download_mode_block.querySelector(`input[value=${download_mode}]`);
-        download_mode_control.checked = true;
-    }
-
+    // Устанавливает обработчики в кнопке
     setHandlers() {
         let wrap = this.PhotoDownload.wrap;
         if (!wrap) return false;
@@ -53,33 +45,57 @@ export default class HandlersManager {
         this.set(btn, 'checkTimer', 'mouseleave');
         this.set(btn, 'preventHandler', 'click');
 
-        let settings_wrap = wrap.querySelector('.' + this.sel.get('sett.settings_wrap'));
-        this.set(settings_wrap, 'closeWatcher', 'transitionend');
-
-        let btn_close = wrap.querySelector('.' + this.sel.get('sett.settings_header_ico'));
+        // Галочка закрытия настроек
+        let btn_close = wrap.querySelector('.' + this.sel.get('sett.settings_close_ico'));
         this.set(btn_close, 'closeTimingSettings', 'click');
 
+        // Обработчик изменения настройки режима скачивания (клика по кнопке)
         let download_mode = wrap.querySelector('.' + this.sel.get('sett.download_mode'));
         this.set(download_mode, 'downloadModeHandler', 'change');
+
+        // Обработчик изменения настройки отображения размера картинки
+        let size_mode = wrap.querySelector('.' + this.sel.get('sett.size_mode'));
+        this.set(size_mode, 'showSizeHandler', 'change');
     }
 
+    // Обновляет настройки в кнопке
+    setSettingsState() {
+        let wrap = this.PhotoDownload.wrap;
+        if (!wrap) return false;
+
+        // _download_mode
+        let download_mode = this.PhotoDownload.settings.download_mode.toString();
+        let download_mode_block = wrap.querySelector('.' + this.sel.get('sett.download_mode'));
+        let download_mode_control = download_mode_block.querySelector(`input[value=${download_mode}]`);
+        download_mode_control.checked = true;
+
+        // _show_size
+        let size_mode_control = wrap.querySelector('#' + this.sel.size_mode_control);
+        size_mode_control.checked = this.PhotoDownload.settings.show_size;
+        if (this.PhotoDownload.settings.show_size) {
+            wrap.classList.remove(this.sel.non_size);
+        } else {
+            wrap.classList.add(this.sel.non_size);
+        }
+    }
+
+    // Обновляет визуальное состояние кнопки
     applyState() {
         let state = this.PhotoDownload.state;
 
         switch (state.settings) {
             case 'open_timing':
+                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: open_timing');
                 this._openTimingSettings();
                 break;
 
             case 'open':
+                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: open');
                 this._openSettings();
                 break;
 
-            case 'close_timing':
-                this._closeTimingSettings();
-                break;
-
             case 'close':
+                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: close');
                 this._closeSettings();
                 break;
 
@@ -88,22 +104,38 @@ export default class HandlersManager {
         }
     }
 
+    // Метод, реализующий режимы быстрого клика и удержания ЛКМ на кнопке
     _startTimer(e) {
+        // Если нажата не ЛКМ - выходим
         if (e.which !== 1) return false;
 
+        // Настройки закрыты
         if (this.PhotoDownload.state.settings == 'close') {
+            // Ставим таймер задержки на время, отведенное для быстрого клика
             this.timers.delay = setTimeout(() => {
+                // Если таймер задержки не сброшен, запускаем состояние открытия настроек
                 this.PhotoDownload.state.settings = 'open_timing';
 
+                // И ставим таймер на время анимации открытия
+                // Пока не выполнится этот таймер, вход в настройки можно отменить, отпустив ЛКМ
                 this.timers.open = setTimeout(() => {
+                    // Если этот таймер не сброшен, входим в настройки
                     this.PhotoDownload.state.settings = 'open';
                 }, this.timings.open);
 
             }, this.timings.delay);
+
+            // Настройки открыты
         } else if (this.PhotoDownload.state.settings == 'open') {
+            // Убираем иконку шестеренки
+            this.PhotoDownload.wrap.querySelector('.cog')
+                .classList.remove(this.sel.draw, this.sel.draw_fill);
+
             setTimeout(() => {
+                // Если за время, отведенное на быстрый клик, настройки еще открыты,
+                // то закроем их
                 if (this.PhotoDownload.state.settings == 'open') {
-                    this.PhotoDownload.state.settings = 'close_timing';
+                    this.PhotoDownload.state.settings = 'close';
                 }
             }, this.timings.delay);
 
@@ -128,7 +160,7 @@ export default class HandlersManager {
 
         // Если быстрый клик и настройки открыты, то будет обработчик закрытия настроек
         if (this.timers.delay && !this.timers.open && this.PhotoDownload.state.settings == 'open') {
-            this.PhotoDownload.state.settings = 'close_timing';
+            this.PhotoDownload.state.settings = 'close';
         }
 
         // Долгий клик и настройки открыты
@@ -140,7 +172,7 @@ export default class HandlersManager {
 
         if (this.PhotoDownload.state.settings == 'open_timing') {
             this.set(e.currentTarget, 'preventHandler');
-            this.PhotoDownload.state.settings = 'close_timing';
+            this.PhotoDownload.state.settings = 'close';
         }
 
         // Обнуляем все таймеры для следующего раза
@@ -161,33 +193,48 @@ export default class HandlersManager {
     // Настройки открыты
     _openSettings() {
         this._openTimingSettings();
-        this.PhotoDownload.wrap.classList.add(this.sel.icon_cog);
-        this.PhotoDownload.wrap
-            .querySelector('.cog')
-            .classList.add(this.sel.draw_fill, this.sel.draw);
-        this.PhotoDownload.wrap.classList.add(this.sel.settings);
-        this.PhotoDownload.wrap.classList.add(this.sel.settings_open);
+
+        let open = () => {
+            this.PhotoDownload.wrap.classList.add(this.sel.settings, this.sel.settings_open);
+            setTimeout(() => {
+                this.PhotoDownload.wrap
+                    .querySelector('.cog')
+                    .classList.add(this.sel.draw_fill);
+            }, this.timings.settings_open);
+        }
+
+        if (this.PhotoDownload.settings.show_size) {
+            open();
+        } else {
+            // Если сначала нужно выдвинуть кнопку
+            this.PhotoDownload.wrap.classList.add(this.sel.slide_in);
+            setTimeout(() => {
+                open();
+            }, this.timings.btn_transition_transform);
+        }
     }
 
     // Запуск закрытия настроек
-    _closeTimingSettings(set_state = true) {
+    _closeSettings() {
+        let close = () => {
+            this.PhotoDownload.wrap.classList.remove(this.sel.icon_cog);
+            this.PhotoDownload.wrap.classList.remove(this.sel.settings);
+
+            // if (!this.PhotoDownload.settings.show_size) {
+            setTimeout(() => {
+                this.PhotoDownload.wrap.classList.remove(this.sel.slide_in);
+            }, this.timings.btn_transition_transform);
+            // }
+        }
+
         this.PhotoDownload.wrap
             .querySelector('.cog')
             .classList.remove(this.sel.draw, this.sel.draw_fill);
         this.PhotoDownload.wrap.classList.remove(this.sel.settings_open);
 
-        if (set_state) {
-            setTimeout(() => {
-                this.PhotoDownload.state.settings = 'close';
-            }, this.timings.settings_open);
-        }
-    }
-
-    // Настройки закрыты
-    _closeSettings() {
-        this._closeTimingSettings(false);
-        this.PhotoDownload.wrap.classList.remove(this.sel.icon_cog);
-        this.PhotoDownload.wrap.classList.remove(this.sel.settings);
+        setTimeout(() => {
+            close();
+        }, this.timings.settings_open);
     }
 
     // Установить один или несколько обработчиков на элемент
@@ -260,6 +307,11 @@ export default class HandlersManager {
     }
 
     // === Обработчики ===
+
+    // Меняет настройку показа разрешения картинки при наведении
+    _showSizeHandler(e) {
+        this.PhotoDownload.settings.show_size = e.target.checked;
+    }
 
     // Меняет настройку режима скачивания
     _downloadModeHandler(e) {

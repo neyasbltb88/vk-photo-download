@@ -76,12 +76,19 @@ export default class PhotoDownloadTemplates {
         } // constructor
 
     // Метод для отображения размеров картинки в кнопке
-    setSize(size, image_data) {
+    setSize(wrap, image_data, non_size) {
+        let size = wrap.querySelector('.' + this.sel.get('btn.size'));
+
         if (image_data.width && image_data.height) {
-            size.classList.remove(this.sel.non_size);
+            if (non_size) {
+                wrap.classList.remove(this.sel.non_size);
+            } else {
+                wrap.classList.add(this.sel.non_size);
+            }
+
             size.textContent = `${image_data.width}x${image_data.height}`;
         } else {
-            size.classList.add(this.sel.non_size);
+            wrap.classList.add(this.sel.non_size);
             size.textContent = '';
         }
     }

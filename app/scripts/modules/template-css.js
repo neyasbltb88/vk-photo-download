@@ -16,11 +16,26 @@ export default function(sel, timings, icons) {
         transition: opacity ${timings.btn_transition_opacity}ms ease-in-out, transform ${timings.btn_transition_transform}ms ease-in-out !important;
     }
 
+    /* При наведении на блок картинки в просмотрщике */
     .${sel.imgContainer_class}:hover #${sel.photoDownload_id}.${sel.ready} {
         opacity: .3;
     }
-
+    /* При наведении на wrap кнопки */
     .${sel.imgContainer_class} #${sel.photoDownload_id}.${sel.ready}:hover {
+        opacity: .8;
+    }
+    /* Если размер картинки должен отображаться */
+    #${sel.photoDownload_id}.${sel.ready}:not(.${sel.non_size}):hover {
+        transform: translate3d(-100%, 0, 1px);
+    }
+
+    /* Если размер картинки не должен отображаться, в кнопке будет всегда слово "Настройки" */
+    #${sel.photoDownload_id}.${sel.non_size} .${sel.get('btn.main_title_inner')} {
+        transform: translate3d(0, -29px, 1px);
+    }
+
+    /* Выдвинуть кнопку при наличии slide_in */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.slide_in} {
         opacity: .8;
         transform: translate3d(-100%, 0, 1px);
     }
@@ -28,6 +43,7 @@ export default function(sel, timings, icons) {
     .${sel.get('btn.btn')} {
         display: flex;
         align-items: center;
+        position: relative;
         padding: 10px;
         background-color: #000;
         border-top-left-radius: 4px;
@@ -57,18 +73,14 @@ export default function(sel, timings, icons) {
         height: 15px;
     }
 
-    #${sel.photoDownload_id} .${sel.get('btn.size')}:not(.non_size) {
-        
-    }
-
-    #${sel.photoDownload_id}.${sel.settings} {
+    /* Для открытых настроек */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.settings} {
         opacity: .8 !important;
         transform: translate3d(-100%, 0, 1px);
     }
 
     #${sel.photoDownload_id}.${sel.settings} .${sel.get('btn.btn')} {
         border-top-left-radius: 0;
-        position: relative;
     }
 
     #${sel.photoDownload_id}.${sel.settings} .${sel.get('btn.btn')}:before {
@@ -99,11 +111,13 @@ export default function(sel, timings, icons) {
         margin-bottom: 14px;
     }
 
-    #${sel.photoDownload_id}.${sel.settings_open} .${sel.get('btn.main_title_inner')} {
+    /* Для открытых настроек показываем слово "Настройки" */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.settings_open} .${sel.get('btn.main_title_inner')} {
         transform: translate3d(0, -29px, 1px);
     }
 
-    #${sel.photoDownload_id}.${sel.icon_cog} .${sel.get('btn.icon')} {
+    /* Спрятать иконку стрелки при наличии icon_cog */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.icon_cog} .${sel.get('btn.icon')} {
         background-image: none;
     }
 
@@ -112,11 +126,11 @@ export default function(sel, timings, icons) {
         overflow: hidden;
     }
 
-    #${sel.photoDownload_id}.${sel.settings} .${sel.get('sett.settings_wrap')} {
+    #${sel.photoDownload_id}.${sel.ready}.${sel.settings} .${sel.get('sett.settings_wrap')} {
         height: auto;
     }
 
-    #${sel.get('photoDownload_id')} .${sel.get('sett.settings')} {
+    #${sel.photoDownload_id}.${sel.ready} .${sel.get('sett.settings')} {
         position: relative;
         background-color: #000;
         border-top-left-radius: 4px;
@@ -128,7 +142,8 @@ export default function(sel, timings, icons) {
         user-select: none;
     }
 
-    #${sel.photoDownload_id}.${sel.settings_open} .${sel.get('sett.settings')} {
+    /* Выдвинуть настройки вверх при наличии settings_open */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.settings_open} .${sel.get('sett.settings')} {
         transform: translate3d(0, 0%, 1px);
     }
     
@@ -173,6 +188,7 @@ export default function(sel, timings, icons) {
         background-position: 0 center;
     }
 
+    /* Иконки для радиокнопок */
     input[type=radio] + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'circle')}');
     }
@@ -186,6 +202,7 @@ export default function(sel, timings, icons) {
         background-image: url('${icons.get('green', 'check_circle')}');
     }
 
+    /* Иконки для чекбоксов */
     input[type=checkbox] + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'square')}');
     }
@@ -199,6 +216,7 @@ export default function(sel, timings, icons) {
         background-image: url('${icons.get('green', 'check_square')}');
     }
 
+    /* Иконка шестеренки */
     #${sel.get('photoDownload_id')} .cog {
         width: 18px;
         height: 18px;
@@ -206,7 +224,7 @@ export default function(sel, timings, icons) {
         opacity: 0;
     }
 
-    #${sel.photoDownload_id}.${sel.icon_cog} .${sel.get('btn.icon')} .cog {
+    #${sel.photoDownload_id}.${sel.ready}.${sel.icon_cog} .${sel.get('btn.icon')} .cog {
         opacity: 1;
     }
 
@@ -230,12 +248,12 @@ export default function(sel, timings, icons) {
         stroke-dashoffset: 0;
     }
 
-    #${sel.photoDownload_id} .cog.${sel.draw_fill} .cog_path {
+    #${sel.photoDownload_id}.${sel.ready} .cog.${sel.draw_fill} .cog_path {
         fill: #00b75a;
         fill-opacity: 1;
     }
 
-    #${sel.photoDownload_id} .cog.${sel.draw_fill} .cog_circle {
+    #${sel.photoDownload_id}.${sel.ready} .cog.${sel.draw_fill} .cog_circle {
         fill: #000;
         stroke-width: 15;
         fill-opacity: 1;
@@ -298,6 +316,7 @@ export default function(sel, timings, icons) {
         transition: color ${timings.fill}ms ease-out !important;
     }
 
+    /* Черта под заколовком секции настроек */
     .${sel.get('sett.settings_section_header')}:after {
         content: '';
         position: absolute;
@@ -309,8 +328,6 @@ export default function(sel, timings, icons) {
         background-color: ${icons._colors.white};
         opacity: .1;
     }
-    
-
 
     `;
 }
