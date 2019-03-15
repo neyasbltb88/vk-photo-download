@@ -70,9 +70,6 @@ export default class PhotoDownloadTemplates {
                     return url ? this._prefix + encodeURIComponent(svg) : svg;
                 }
             };
-
-            this.template_html = template_html(this.sel, this.timings, this.icons);
-            this.template_css = template_css(this.sel, this.timings, this.icons);
         } // constructor
 
     // Метод для отображения размеров картинки в кнопке
@@ -113,12 +110,11 @@ export default class PhotoDownloadTemplates {
 
     // Метод, генерирующий верстку самой кнопки
     getInnerElems() {
-        return this.template_html;
+        return template_html(this.sel, this.timings, this.icons);
     }
 
     // Метод, шаблонизирующий стили кнопки
     getStyleContent() {
-        return this.template_css;
+        return template_css(this.sel, this.timings, this.icons);
     }
-
 }

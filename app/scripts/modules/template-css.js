@@ -60,9 +60,34 @@ export default function(sel, timings, icons) {
         background-repeat: no-repeat;
         height: 18px;
         width: 18px;
+        position: relative;
     }
 
-    .${sel.get('btn.btn')}:hover .${sel.get('btn.icon')} {
+    /* Эффект скачивания */
+    .${sel.get('btn.icon')}:before {
+        content: '';
+        background-image: url('${icons.get('white', 'arrow')}');
+        background-size: contain;
+        background-repeat: no-repeat;
+        height: 90%;
+        width: 90%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        opacity: .8;
+        will-change: transform, opacity;
+        transform: translate(-50%, -50%);
+        transition: transform ${timings.settings_open - 100}ms cubic-bezier(.22,.73,.43,.65), opacity ${timings.settings_open}ms cubic-bezier(.38,.75,.46,1) !important;
+    }
+
+    .${sel.get('btn.icon')}.${sel.get('btn.download_effect')}:before {
+        transition: transform ${timings.settings_open + 100}ms cubic-bezier(.5,.69,.2,1.6), opacity ${timings.settings_open + 100}ms ease-in-out !important;
+        transform: translate(-50%, -50%) scale3d(2, 2, 2);
+        opacity: .1;
+    }
+
+    .${sel.get('btn.btn')}:hover .${sel.get('btn.icon')},
+    .${sel.get('btn.btn')}:hover .${sel.get('btn.icon')}:before {
         background-image: url('${icons.get('green', 'arrow')}');
     }
 
@@ -117,7 +142,8 @@ export default function(sel, timings, icons) {
     }
 
     /* Спрятать иконку стрелки при наличии icon_cog */
-    #${sel.photoDownload_id}.${sel.ready}.${sel.icon_cog} .${sel.get('btn.icon')} {
+    #${sel.photoDownload_id}.${sel.ready}.${sel.icon_cog} .${sel.get('btn.icon')}, 
+    #${sel.photoDownload_id}.${sel.ready}.${sel.icon_cog} .${sel.get('btn.icon')}:before {
         background-image: none;
     }
 

@@ -25,6 +25,7 @@ export default class HandlersManager {
                 closeTimingSettings: () => this.PhotoDownload.state.settings = 'close',
                 downloadModeHandler: this._downloadModeHandler.bind(this),
                 showSizeHandler: this._showSizeHandler.bind(this),
+                downloadEffect: this.tempClass.bind(this, this.sel.get('btn.download_effect'), this.timings.settings_open + 250, `.${this.sel.get('btn.icon')}`),
             }
 
             this.timers = {
@@ -85,17 +86,14 @@ export default class HandlersManager {
 
         switch (state.settings) {
             case 'open_timing':
-                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: open_timing');
                 this._openTimingSettings();
                 break;
 
             case 'open':
-                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: open');
                 this._openSettings();
                 break;
 
             case 'close':
-                // console.log('%c%s', (window.log_color) ? window.log_color.orange : '', 'State: close');
                 this._closeSettings();
                 break;
 
@@ -152,9 +150,9 @@ export default class HandlersManager {
             // Тут действие для простого клика
             // В зависимости от флага вешаем либо обработчик скачивания, либо открытия новой вкладки
             if (this.PhotoDownload.settings.download_mode) {
-                this.set(e.currentTarget, 'downloadHandler');
+                this.set(e.currentTarget, ['downloadHandler', 'downloadEffect']);
             } else {
-                this.set(e.currentTarget, 'newTabHandler');
+                this.set(e.currentTarget, ['newTabHandler', 'downloadEffect']);
             }
         }
 
@@ -304,6 +302,28 @@ export default class HandlersManager {
     // Получить функцию-обработчик
     getHandler(handler_name) {
         return this.handlers[handler_name];
+    }
+
+    // === Служебные ===
+
+    tempClass(class_name, timeout, elem) {
+        if (elem instanceof Event) {
+            elem = elem.currentTarget;
+        } else if (typeof elem === 'string') {
+            elem = document.querySelector(elem);
+        } else if (elem === undefined) {
+            elem = this;
+        }
+
+        elem.classList.remove(class_name);
+
+        setTimeout(() => {
+            elem.classList.add(class_name);
+        }, 0);
+
+        setTimeout(() => {
+            elem.classList.remove(class_name);
+        }, timeout);
     }
 
     // === Обработчики ===

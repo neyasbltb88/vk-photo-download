@@ -65,6 +65,8 @@ export default class PhotoDownload {
                 // Класс блока, в котором отображается разрешение картинки
                 size: 'size',
                 settings_title: 'settings_title',
+
+                download_effect: 'download_effect',
             },
             // Метод получения селектора
             get(sel) {
