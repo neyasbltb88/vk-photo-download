@@ -108,6 +108,15 @@ export default class PhotoDownloadTemplates {
         return wrap;
     }
 
+    // Метод добавления на страницу стилей, необходимых для работы PhotoDownload
+    injectCSS() {
+        let style = document.createElement('style');
+        style.id = this.sel.style_id;
+        style.textContent = this.getStyleContent();
+
+        document.head.appendChild(style);
+    }
+
     // Метод, генерирующий верстку самой кнопки
     getInnerElems() {
         return template_html(this.sel, this.timings, this.icons);

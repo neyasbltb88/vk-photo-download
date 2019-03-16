@@ -357,15 +357,6 @@ export default class PhotoDownload {
 
     // --- Storage ---
 
-    // Метод добавления на страницу стилей, необходимых для работы PhotoDownload
-    _injectCSS() {
-        let style = document.createElement('style');
-        style.id = this.selectors.style_id;
-        style.textContent = this.template.getStyleContent();
-
-        document.head.appendChild(style);
-    }
-
 
     // Точка входа
     init() {
@@ -373,7 +364,7 @@ export default class PhotoDownload {
         console.log('%c%s', (window.log_color) ? window.log_color.blue : '', 'PhotoDownload: Init');
 
         // Добавляем стили PhotoDownload
-        this._injectCSS();
+        this.template.injectCSS();
 
         // Восстанавливаем сохраненное в LocalStorage состояние
         this._restoreStorage();
