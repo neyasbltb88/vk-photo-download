@@ -91,6 +91,12 @@ export default function(sel, timings, icons) {
         background-image: url('${icons.get('green', 'arrow')}');
     }
 
+    /* Отметка о ранее скаченной картинке */
+    .${sel.get('btn.btn')}.${sel.get('loaded_urls_active')} .${sel.get('btn.icon')},
+    .${sel.get('btn.btn')}.${sel.get('loaded_urls_active')} .${sel.get('btn.icon')}:before {
+        background-image: url('${icons.get('yellow', 'arrow')}');
+    }
+
     #${sel.photoDownload_id} .${sel.get('btn.size')} {
         color: ${icons._colors.grey} !important;
         flex-grow: 1;

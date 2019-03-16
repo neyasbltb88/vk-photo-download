@@ -72,6 +72,22 @@ export default class PhotoDownloadTemplates {
             };
         } // constructor
 
+
+    setLoadedUrl(wrap, setting_active, check) {
+        if (!wrap) return null;
+
+        let btn = wrap.querySelector('.' + this.sel.get('btn.btn'));
+        let icon = btn.querySelector('.' + this.sel.get('btn.icon'));
+
+        if (setting_active && check) {
+            btn.classList.add(this.sel.get('loaded_urls_active'));
+            icon.title = 'Это изображение уже было скачено ранее';
+        } else {
+            btn.classList.remove(this.sel.get('loaded_urls_active'));
+            icon.title = '';
+        }
+    }
+
     // Метод для отображения размеров картинки в кнопке
     setSize(wrap, image_data, non_size) {
         let size = wrap.querySelector('.' + this.sel.get('btn.size'));
@@ -100,7 +116,6 @@ export default class PhotoDownloadTemplates {
 
         setTimeout(() => {
             wrap.classList.add(this.sel.ready);
-            // Для теста, чтобы настройки сразу открыты были
         }, 0);
 
         parent.appendChild(wrap);

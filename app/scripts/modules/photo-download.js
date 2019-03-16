@@ -42,6 +42,7 @@ export default class PhotoDownload {
             size_mode_control: 'size_mode_control',
 
             loaded_urls_mode_control: 'loaded_urls_mode_control',
+            loaded_urls_active: 'loaded_urls_active',
 
             sett: {
                 settings_wrap: 'settings_wrap',
@@ -161,6 +162,8 @@ export default class PhotoDownload {
                 }
             }, // _show_size
 
+            // loaded_urls - флаг, отвечающий за отметку того, что текущая картинка уже была ранее скачена,
+            // в виде желтой иконки стрелки
             _loaded_urls: true,
             get loaded_urls() {
                 return this._loaded_urls;
@@ -169,36 +172,45 @@ export default class PhotoDownload {
                 if (typeof val === 'boolean') {
                     this._loaded_urls = val;
                     that.handlers.setSettingsState();
-
-                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', 'loaded_urls: ' + val);
+                    that._checkLoadedUrl(true);
                 }
             }, // _loaded_urls
         };
 
+        // Объект для работы с ранее скаченными картинками
         this.loaded_urls = {
             _loaded_urls: [],
+            // Добавить новый url в массив скаченных
             add(url) {
                 if (typeof url === 'string' && !this.check(url)) {
                     this._loaded_urls.push(url);
                     that._saveLoadedUrls();
+                    that._checkLoadedUrl();
 
                     return true;
                 } else {
                     return false;
                 }
             },
+            // Проверить, есть ли этот url в скаченных
             check(url) {
                 return this._loaded_urls.some(item => item === url);
             },
+            // Получить массив скаченных url
             get() {
                 return this._loaded_urls;
             },
+            length() {
+                return this.get().length;
+            },
+            // Установить новый массив скаченных url
             set(arr, storage = true) {
                 if (arr instanceof Array) {
                     this._loaded_urls = arr;
 
                     if (storage) {
                         that._saveLoadedUrls();
+                        that._checkLoadedUrl(true);
                     }
 
                     return true;
@@ -206,6 +218,7 @@ export default class PhotoDownload {
                     return false;
                 }
             },
+            // Очистить массив скаченных url
             clear() {
                 return this.set([]);
             }
@@ -234,7 +247,7 @@ export default class PhotoDownload {
         this.timings = {
             delay: 250,
             open: 600,
-            settings_open: 2000,
+            settings_open: 350,
             fill: 100,
             btn_transition_opacity: 250,
             btn_transition_transform: 250,
@@ -242,6 +255,9 @@ export default class PhotoDownload {
 
         // Здесь будет храниться элемент кнопки
         this.wrap = null;
+
+        // Здесь будет храниться информация о текущей картинке
+        this.image_data = null;
 
         // Создаем инстанс шаблонизатора верстки
         this.template = new PhotoDownloadTemplates({
@@ -296,14 +312,45 @@ export default class PhotoDownload {
         let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
 
         // Получаем из недр ВК информацию о максимальной версии открытой в просмотрщике картинки
-        let image_data = window.Photoview.genData(window.cur.pvCurPhoto);
+        this.image_data = window.Photoview.genData(window.cur.pvCurPhoto);
+
+        // Проверим, не был ли новый url ранее уже скачен
+        this._checkLoadedUrl();
 
         // Обновим ссылку в кнопке
-        btn.href = image_data.src;
+        btn.href = this.image_data.src;
 
-        // И размеры картинки, которая по ссылке
-        this.template.setSize(this.wrap, image_data, this.settings.show_size);
+        // Установим информацию о размерах картинки, которая по ссылке
+        this.template.setSize(this.wrap, this.image_data, this.settings.show_size);
     }
+
+    // === LoadedUrl ===
+
+    // Если разрешено в настройке, добавляет url в массив ранее скаченных
+    _addloadedUrl(url) {
+        if (this.settings.loaded_urls) {
+            this.loaded_urls.add(url);
+        }
+    }
+
+    // Обновляет отображение в кнопке, если это разрешено в насройках
+    // и ее href есть в массиве ранее скаченных
+    _checkLoadedUrl(immediate = false) {
+        // immediate - флаг, при наличии которого изменение отобразится на кнопке немедленно,
+        // иначе - только после переключения картинки.
+        // Нужно для того, чтобы иконка не становилась желтой сразу под мышкой при скачивании,
+        // но при переключении настройки "Отмечать скаченные", изменения отобразятся сразу
+        if (!immediate) {
+            if (!this.wrap) return;
+            let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
+            if (!btn || (this.image_data.src === btn.href)) return;
+        }
+
+        let check = this.loaded_urls.check(this.image_data.src);
+        this.template.setLoadedUrl(this.wrap, this.settings.loaded_urls, check);
+    }
+
+    // --- LoadedUrl ---
 
     // === Watcher ===
 
