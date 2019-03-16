@@ -41,12 +41,15 @@ export default class PhotoDownload {
 
             size_mode_control: 'size_mode_control',
 
+            loaded_urls_mode_control: 'loaded_urls_mode_control',
+
             sett: {
                 settings_wrap: 'settings_wrap',
                 settings: 'settings',
                 settings_body: 'settings_body',
                 download_mode: 'download_mode',
                 size_mode: 'size_mode',
+                loaded_urls_mode: 'loaded_urls_mode',
                 settings_item: 'settings_item',
                 settings_item_action: 'settings_item_action',
 
@@ -65,7 +68,7 @@ export default class PhotoDownload {
                 // Класс блока, в котором отображается разрешение картинки
                 size: 'size',
                 settings_title: 'settings_title',
-
+                // Класс для эффекта скачивания на иконке стрелки
                 download_effect: 'download_effect',
             },
             // Метод получения селектора
@@ -157,7 +160,56 @@ export default class PhotoDownload {
                     that.handlers.setSettingsState();
                 }
             }, // _show_size
+
+            _loaded_urls: true,
+            get loaded_urls() {
+                return this._loaded_urls;
+            },
+            set loaded_urls(val) {
+                if (typeof val === 'boolean') {
+                    this._loaded_urls = val;
+                    that.handlers.setSettingsState();
+
+                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', 'loaded_urls: ' + val);
+                }
+            }, // _loaded_urls
         };
+
+        this.loaded_urls = {
+            _loaded_urls: [],
+            add(url) {
+                if (typeof url === 'string' && !this.check(url)) {
+                    this._loaded_urls.push(url);
+                    that._saveLoadedUrls();
+
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            check(url) {
+                return this._loaded_urls.some(item => item === url);
+            },
+            get() {
+                return this._loaded_urls;
+            },
+            set(arr, storage = true) {
+                if (arr instanceof Array) {
+                    this._loaded_urls = arr;
+
+                    if (storage) {
+                        that._saveLoadedUrls();
+                    }
+
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            clear() {
+                return this.set([]);
+            }
+        }; // _loaded_urls
 
         // Визуальное состояние кнопки
         this.state = {
@@ -182,7 +234,7 @@ export default class PhotoDownload {
         this.timings = {
             delay: 250,
             open: 600,
-            settings_open: 250,
+            settings_open: 2000,
             fill: 100,
             btn_transition_opacity: 250,
             btn_transition_transform: 250,
@@ -211,6 +263,7 @@ export default class PhotoDownload {
             default: {
                 settings: this.settings,
                 state: this.state,
+                loaded_urls: [],
             }
         });
 
@@ -338,6 +391,11 @@ export default class PhotoDownload {
 
     _saveState() {
         let res = this.storage.set('state', this.state);
+        // console.log(res);
+    }
+
+    _saveLoadedUrls() {
+        let res = this.storage.set('loaded_urls', this.loaded_urls);
         // console.log(res);
     }
 

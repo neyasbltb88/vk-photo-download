@@ -26,6 +26,7 @@ export default class HandlersManager {
                 downloadModeHandler: this._downloadModeHandler.bind(this),
                 showSizeHandler: this._showSizeHandler.bind(this),
                 downloadEffect: this.tempClass.bind(this, this.sel.get('btn.download_effect'), this.timings.settings_open + 250, `.${this.sel.get('btn.icon')}`),
+                loadedUrlsHandler: this._loadedUrlsHandler.bind(this),
             }
 
             this.timers = {
@@ -57,6 +58,10 @@ export default class HandlersManager {
         // Обработчик изменения настройки отображения размера картинки
         let size_mode = wrap.querySelector('.' + this.sel.get('sett.size_mode'));
         this.set(size_mode, 'showSizeHandler', 'change');
+
+        // Обработчик изменения настройки запоминания URL скаченных картинок
+        let loaded_urls_mode = wrap.querySelector('.' + this.sel.get('sett.loaded_urls_mode'));
+        this.set(loaded_urls_mode, 'loadedUrlsHandler', 'change');
     }
 
     // Обновляет настройки в кнопке
@@ -78,6 +83,11 @@ export default class HandlersManager {
         } else {
             wrap.classList.add(this.sel.non_size);
         }
+
+        // _loaded_urls
+        let loaded_urls_mode_control = wrap.querySelector('#' + this.sel.loaded_urls_mode_control);
+        loaded_urls_mode_control.checked = this.PhotoDownload.settings.loaded_urls;
+
     }
 
     // Обновляет визуальное состояние кнопки
@@ -327,6 +337,11 @@ export default class HandlersManager {
     }
 
     // === Обработчики ===
+
+    // Меняет настройку запоминания URL скаченных картинок
+    _loadedUrlsHandler(e) {
+        this.PhotoDownload.settings.loaded_urls = e.target.checked;
+    }
 
     // Меняет настройку показа разрешения картинки при наведении
     _showSizeHandler(e) {

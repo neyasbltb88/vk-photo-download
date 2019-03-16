@@ -7,6 +7,7 @@ export default function(sel, timings, icons) {
 
             <div class="${sel.get('sett.settings_body')}">
 
+                <!-- Режим клика -->
                 <div class="${sel.get('sett.settings_section')}">
                 <div class="${sel.get('sett.settings_section_header')}">Режим клика</div>
 
@@ -22,6 +23,7 @@ export default function(sel, timings, icons) {
                     </ul>
                 </div>
                 
+                <!-- Размер изображения -->
                 <div class="${sel.get('sett.settings_section')}">
                 <div class="${sel.get('sett.settings_section_header')}">Размер изображения</div>
 
@@ -29,6 +31,18 @@ export default function(sel, timings, icons) {
                         <li class="${sel.get('sett.settings_item')}">
                             <input type="checkbox" id="${sel.size_mode_control}" name="size_mode" value="true">
                             <label for="${sel.size_mode_control}" class="${sel.get('sett.settings_item_action')}">Показывать</label>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Отмечать скаченные -->
+                <div class="${sel.get('sett.settings_section')}">
+                <div class="${sel.get('sett.settings_section_header')}">Отмечать скаченные</div>
+
+                    <ul class="${sel.get('sett.loaded_urls_mode')}">
+                        <li class="${sel.get('sett.settings_item')}">
+                            <input type="checkbox" id="${sel.loaded_urls_mode_control}" name="loaded_urls_mode" value="true">
+                            <label for="${sel.loaded_urls_mode_control}" class="${sel.get('sett.settings_item_action')}">Запоминать URL</label>
                         </li>
                     </ul>
                 </div>
