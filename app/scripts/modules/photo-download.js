@@ -46,6 +46,8 @@ export default class PhotoDownload {
             loaded_urls_mode_clear_control: 'loaded_urls_mode_clear_control',
             loaded_urls_active: 'loaded_urls_active',
 
+            watch_mode_control: 'watch_mode_control',
+
             sett: {
                 settings_wrap: 'settings_wrap',
                 settings: 'settings',
@@ -55,7 +57,7 @@ export default class PhotoDownload {
                 loaded_urls_mode: 'loaded_urls_mode',
                 settings_item: 'settings_item',
                 settings_item_action: 'settings_item_action',
-                // loaded_urls_counter: 'loaded_urls_counter',
+                watch_mode: 'watch_mode',
 
                 settings_close_ico: 'settings_close_ico',
                 settings_section: 'settings_section',
@@ -179,6 +181,8 @@ export default class PhotoDownload {
                 }
             }, // _loaded_urls
 
+            // loaded_urls_PKM - флаг, овечающий за добавление url картинки в список скаченных
+            // по нажатию на кнопку Правой Кнопкой Мышки или Колесиком Мышки
             _loaded_urls_PKM: true,
             get loaded_urls_PKM() {
                 return this._loaded_urls_PKM;
@@ -187,10 +191,22 @@ export default class PhotoDownload {
                 if (typeof val === 'boolean') {
                     this._loaded_urls_PKM = val;
                     that.handlers.setSettingsState();
-
-                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', '_loaded_urls_PKM: ' + val);
                 }
             }, // _loaded_urls_PKM
+
+            // watch_mode - флаг, отвечающий за режим быстрого скачивания.
+            // В этом режиме кнопка фиксируется и ожидает нажатия клавиши Enter.
+            // По его нажатию происходит скачивание.
+            _watch_mode: false,
+            get watch_mode() {
+                return this._watch_mode;
+            },
+            set watch_mode(val) {
+                if (typeof val === 'boolean') {
+                    this._watch_mode = val;
+                    that.handlers.setSettingsState();
+                }
+            }, // _watch_mode
         };
 
         // Объект для работы с ранее скаченными картинками
@@ -263,7 +279,7 @@ export default class PhotoDownload {
         this.timings = {
             delay: 250,
             open: 600,
-            settings_open: 350,
+            settings_open: 450,
             fill: 100,
             btn_transition_opacity: 250,
             btn_transition_transform: 250,

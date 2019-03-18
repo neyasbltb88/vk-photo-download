@@ -167,7 +167,7 @@ export default function(sel, timings, icons) {
         background-color: #000;
         border-top-left-radius: 4px;
         font-size: 12px;
-        width: 150px;
+        width: 160px;
         will-change: transform;
         transform: translate3d(0, 100%, 1px);
         transition: transform ${timings.settings_open}ms ease-out !important;

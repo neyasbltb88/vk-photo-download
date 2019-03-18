@@ -56,6 +56,18 @@ export default function(sel, timings, icons) {
                     </ul>
                 </div>
 
+                <!-- Быстрое скачивание -->
+                <div class="${sel.get('sett.settings_section')}">
+                <div class="${sel.get('sett.settings_section_header')}">Быстрое скачивание</div>
+
+                    <ul class="${sel.get('sett.watch_mode')}">
+                        <li class="${sel.get('sett.settings_item')}">
+                            <input type="checkbox" id="${sel.watch_mode_control}" name="watch_mode_mode" value="true">
+                            <label for="${sel.watch_mode_control}" class="${sel.get('sett.settings_item_action')}">Ждать нажатия Enter</label>
+                        </li>
+                    </ul>
+                </div>
+
             </div>
         </div>
 

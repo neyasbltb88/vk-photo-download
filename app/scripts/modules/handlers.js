@@ -98,6 +98,10 @@ export default class HandlersManager {
         // Применим состояние настройки
         loaded_urls_mode_key_control.checked = this.PhotoDownload.settings.loaded_urls_PKM;
 
+        // _watch_mode
+        let watch_mode_control = wrap.querySelector('#' + this.sel.watch_mode_control);
+        watch_mode_control.checked = this.PhotoDownload.settings.watch_mode;
+
     }
 
     // Обновляет визуальное состояние кнопки
