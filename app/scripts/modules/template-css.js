@@ -225,7 +225,9 @@ export default function(sel, timings, icons) {
         color: ${icons._colors.green} !important;
     }
 
-    .${sel.get('sett.settings_item')} button:active {
+    .${sel.get('sett.settings_item')} button:active,
+    .${sel.get('sett.settings_item')} button:active span {
+        color: ${icons._colors.green} !important;
         border-color: ${icons._colors.green} !important;
     }
 
