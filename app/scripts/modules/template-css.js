@@ -224,13 +224,13 @@ export default function(sel, timings, icons) {
     input[type=radio] + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'circle')}');
     }
-    input[type=radio] + .${sel.get('sett.settings_item_action')}:hover {
+    input[type=radio]:not([disabled]) + .${sel.get('sett.settings_item_action')}:hover {
         background-image: url('${icons.get('green', 'circle')}');
     }
     input[type=radio]:checked + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'check_circle')}');
     }
-    input[type=radio]:checked + .${sel.get('sett.settings_item_action')}:hover {
+    input[type=radio]:not([disabled]):checked + .${sel.get('sett.settings_item_action')}:hover {
         background-image: url('${icons.get('green', 'check_circle')}');
     }
 
@@ -238,14 +238,19 @@ export default function(sel, timings, icons) {
     input[type=checkbox] + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'square')}');
     }
-    input[type=checkbox] + .${sel.get('sett.settings_item_action')}:hover {
+    input[type=checkbox]:not([disabled]) + .${sel.get('sett.settings_item_action')}:hover {
         background-image: url('${icons.get('green', 'square')}');
     }
     input[type=checkbox]:checked + .${sel.get('sett.settings_item_action')} {
         background-image: url('${icons.get('white', 'check_square')}');
     }
-    input[type=checkbox]:checked + .${sel.get('sett.settings_item_action')}:hover {
+    input[type=checkbox]:not([disabled]):checked + .${sel.get('sett.settings_item_action')}:hover {
         background-image: url('${icons.get('green', 'check_square')}');
+    }
+
+    input[disabled] + .${sel.get('sett.settings_item_action')} {
+        opacity: .4;
+        cursor: default;
     }
 
     /* Иконка шестеренки */

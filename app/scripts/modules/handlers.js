@@ -88,6 +88,11 @@ export default class HandlersManager {
         // _loaded_urls
         let loaded_urls_mode_control = wrap.querySelector('#' + this.sel.loaded_urls_mode_control);
         loaded_urls_mode_control.checked = this.PhotoDownload.settings.loaded_urls;
+        // Если разрешено "Запоминать URL", то разблокируем "+ клики ПКМ" и наоборот
+        let loaded_urls_mode_key_control = wrap.querySelector('#' + this.sel.loaded_urls_mode_key_control);
+        loaded_urls_mode_key_control.disabled = !this.PhotoDownload.settings.loaded_urls;
+        // Применим состояние настройки
+        loaded_urls_mode_key_control.checked = this.PhotoDownload.settings.loaded_urls_PKM;
 
     }
 
@@ -116,7 +121,16 @@ export default class HandlersManager {
     // Метод, реализующий режимы быстрого клика и удержания ЛКМ на кнопке
     _startTimer(e) {
         // Если нажата не ЛКМ - выходим
-        if (e.which !== 1) return false;
+        if (e.which !== 1) {
+            if (this.PhotoDownload.settings.loaded_urls_PKM &&
+                this.PhotoDownload.settings.loaded_urls &&
+                this.PhotoDownload.state.settings == 'close') {
+
+                this._addloadedUrl(e);
+            }
+
+            return false;
+        }
 
         // Настройки закрыты
         if (this.PhotoDownload.state.settings == 'close') {
@@ -346,7 +360,13 @@ export default class HandlersManager {
 
     // Меняет настройку запоминания URL скаченных картинок
     _loadedUrlsHandler(e) {
-        this.PhotoDownload.settings.loaded_urls = e.target.checked;
+        if (e.target.id === this.sel.loaded_urls_mode_control) {
+            // Изменена настройка основного запоминания URL
+            this.PhotoDownload.settings.loaded_urls = e.target.checked;
+        } else if (e.target.id === this.sel.loaded_urls_mode_key_control) {
+            // Изменена настройка дополнительного запоминания URL по ПКМ
+            this.PhotoDownload.settings.loaded_urls_PKM = e.target.checked;
+        }
     }
 
     // Меняет настройку показа разрешения картинки при наведении

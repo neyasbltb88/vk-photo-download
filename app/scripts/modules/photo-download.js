@@ -42,6 +42,7 @@ export default class PhotoDownload {
             size_mode_control: 'size_mode_control',
 
             loaded_urls_mode_control: 'loaded_urls_mode_control',
+            loaded_urls_mode_key_control: 'loaded_urls_mode_key_control',
             loaded_urls_active: 'loaded_urls_active',
 
             sett: {
@@ -113,7 +114,7 @@ export default class PhotoDownload {
                 // Селектор родительского блока кнопки
                 {
                     type: 'class',
-                    selector: this.selectors.PhotoDownload_btn,
+                    selector: this.selectors.get('btn.btn'),
                     // При наведении на саму кнопку, будем обновлять в ней данные
                     handler: this._updateBtn,
                     child: true,
@@ -175,6 +176,19 @@ export default class PhotoDownload {
                     that._checkLoadedUrl(true);
                 }
             }, // _loaded_urls
+
+            _loaded_urls_PKM: true,
+            get loaded_urls_PKM() {
+                return this._loaded_urls_PKM;
+            },
+            set loaded_urls_PKM(val) {
+                if (typeof val === 'boolean') {
+                    this._loaded_urls_PKM = val;
+                    that.handlers.setSettingsState();
+
+                    console.log('%c%s', (window.log_color) ? window.log_color.purple : '', '_loaded_urls_PKM: ' + val);
+                }
+            }, // _loaded_urls_PKM
         };
 
         // Объект для работы с ранее скаченными картинками
@@ -374,20 +388,28 @@ export default class PhotoDownload {
         triggers.forEach(trigger => {
             // Ищем обработчик для цели события
             // Если вернется false, то не найден
-            let compliance = this._checkComplianceTarget(target, trigger);
+            let compliance = this._checkComplianceTarget(target, trigger, event.type);
 
             // Если цели события нет в объекте обработчиков, но в обработчике указано, 
             // что он может срабатывать на дочернем элементе
             if (!compliance && trigger.child) {
                 // Попробуем найти родительский элемент цели, соответствующий селектору
                 // из объекта обработчиков
-                this._checkComplianceChild(target, trigger);
+                this._checkComplianceChild(target, trigger, event.type);
             }
         });
     }
 
     // Проверка на соответствие цели события с селекторами объекта триггеров
-    _checkComplianceTarget(target, trigger) {
+    _checkComplianceTarget(target, trigger, type) {
+
+        if (type === 'click') {
+            console.log('_checkComplianceTarget', {
+                target,
+                trigger
+            });
+        }
+
         let compliance = false;
 
         // Два отдельных условия для того, чтобы была возможность назначить
@@ -416,7 +438,16 @@ export default class PhotoDownload {
     }
 
     // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
-    _checkComplianceChild(target, trigger) {
+    _checkComplianceChild(target, trigger, type) {
+
+        if (type === 'click') {
+            console.log('_checkComplianceChild', {
+                target,
+                trigger
+            });
+        }
+
+
         let parent = (trigger.type === 'id') ?
             target.closest('#' + trigger.selector) :
             target.closest('.' + trigger.selector);

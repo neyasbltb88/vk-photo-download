@@ -44,6 +44,12 @@ export default function(sel, timings, icons) {
                             <input type="checkbox" id="${sel.loaded_urls_mode_control}" name="loaded_urls_mode" value="true">
                             <label for="${sel.loaded_urls_mode_control}" class="${sel.get('sett.settings_item_action')}">Запоминать URL</label>
                         </li>
+
+                        <li class="${sel.get('sett.settings_item')}">
+                            <!-- disabled checked -->
+                            <input type="checkbox" id="${sel.loaded_urls_mode_key_control}" name="loaded_urls_mode_key" value="true" disabled>
+                            <label for="${sel.loaded_urls_mode_key_control}" class="${sel.get('sett.settings_item_action')}">+ клики ПКМ</label>
+                        </li>
                     </ul>
                 </div>
 
