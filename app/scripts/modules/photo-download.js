@@ -43,6 +43,7 @@ export default class PhotoDownload {
 
             loaded_urls_mode_control: 'loaded_urls_mode_control',
             loaded_urls_mode_key_control: 'loaded_urls_mode_key_control',
+            loaded_urls_mode_clear_control: 'loaded_urls_mode_clear_control',
             loaded_urls_active: 'loaded_urls_active',
 
             sett: {
@@ -341,7 +342,7 @@ export default class PhotoDownload {
     // === LoadedUrl ===
 
     // Если разрешено в настройке, добавляет url в массив ранее скаченных
-    _addloadedUrl(url) {
+    _addLoadedUrl(url) {
         if (this.settings.loaded_urls) {
             this.loaded_urls.add(url);
         }

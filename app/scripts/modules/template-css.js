@@ -208,6 +208,26 @@ export default function(sel, timings, icons) {
         display: none;
     }
 
+    .${sel.get('sett.settings_item')} button {
+        margin: 0 auto;
+        background-color: transparent;
+        font-size: 12px;
+        padding: 2px;
+        border: 1px solid;
+        border-color: ${icons._colors.grey}; 
+        border-radius: 2px;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .${sel.get('sett.settings_item')} button:hover {
+        color: ${icons._colors.green} !important;
+    }
+
+    .${sel.get('sett.settings_item')} button:active {
+        border-color: ${icons._colors.green} !important;
+    }
+
     .${sel.get('sett.settings_item_action')} {
         display: flex;
         align-items: center;

@@ -27,7 +27,8 @@ export default class HandlersManager {
                 showSizeHandler: this._showSizeHandler.bind(this),
                 downloadEffect: this.tempClass.bind(this, this.sel.get('btn.download_effect'), this.timings.settings_open + 250, `.${this.sel.get('btn.icon')}`),
                 loadedUrlsHandler: this._loadedUrlsHandler.bind(this),
-                addloadedUrl: this._addloadedUrl.bind(this),
+                addLoadedUrl: this._addLoadedUrl.bind(this),
+                clearLoadedUrls: () => this.PhotoDownload.loaded_urls.clear(),
             }
 
             this.timers = {
@@ -63,6 +64,9 @@ export default class HandlersManager {
         // Обработчик изменения настройки запоминания URL скаченных картинок
         let loaded_urls_mode = wrap.querySelector('.' + this.sel.get('sett.loaded_urls_mode'));
         this.set(loaded_urls_mode, 'loadedUrlsHandler', 'change');
+
+        let loaded_urls_mode_clear_control = wrap.querySelector('#' + this.sel.get('loaded_urls_mode_clear_control'));
+        this.set(loaded_urls_mode_clear_control, 'clearLoadedUrls', 'click');
     }
 
     // Обновляет настройки в кнопке
@@ -126,7 +130,7 @@ export default class HandlersManager {
                 this.PhotoDownload.settings.loaded_urls &&
                 this.PhotoDownload.state.settings == 'close') {
 
-                this._addloadedUrl(e);
+                this._addLoadedUrl(e);
             }
 
             return false;
@@ -175,9 +179,9 @@ export default class HandlersManager {
             // Тут действие для простого клика
             // В зависимости от флага вешаем либо обработчик скачивания, либо открытия новой вкладки
             if (this.PhotoDownload.settings.download_mode) {
-                this.set(e.currentTarget, ['downloadHandler', 'downloadEffect', 'addloadedUrl']);
+                this.set(e.currentTarget, ['downloadHandler', 'downloadEffect', 'addLoadedUrl']);
             } else {
-                this.set(e.currentTarget, ['newTabHandler', 'downloadEffect', 'addloadedUrl']);
+                this.set(e.currentTarget, ['newTabHandler', 'downloadEffect', 'addLoadedUrl']);
             }
         }
 
@@ -353,9 +357,9 @@ export default class HandlersManager {
 
     // === Обработчики ===
 
-    _addloadedUrl(e) {
+    _addLoadedUrl(e) {
         let url = e.currentTarget.href;
-        this.PhotoDownload._addloadedUrl(url);
+        this.PhotoDownload._addLoadedUrl(url);
     }
 
     // Меняет настройку запоминания URL скаченных картинок

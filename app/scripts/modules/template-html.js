@@ -46,9 +46,12 @@ export default function(sel, timings, icons) {
                         </li>
 
                         <li class="${sel.get('sett.settings_item')}">
-                            <!-- disabled checked -->
                             <input type="checkbox" id="${sel.loaded_urls_mode_key_control}" name="loaded_urls_mode_key" value="true" disabled>
                             <label for="${sel.loaded_urls_mode_key_control}" class="${sel.get('sett.settings_item_action')}">+ клики ПКМ</label>
+                        </li>
+
+                        <li class="${sel.get('sett.settings_item')}">
+                            <button id="${sel.loaded_urls_mode_clear_control}">Очистить URL</button>
                         </li>
                     </ul>
                 </div>
