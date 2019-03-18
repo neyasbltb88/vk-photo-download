@@ -220,7 +220,8 @@ export default function(sel, timings, icons) {
         cursor: pointer;
     }
 
-    .${sel.get('sett.settings_item')} button:hover {
+    .${sel.get('sett.settings_item')} button:hover,
+    .${sel.get('sett.settings_item')} button:hover span {
         color: ${icons._colors.green} !important;
     }
 

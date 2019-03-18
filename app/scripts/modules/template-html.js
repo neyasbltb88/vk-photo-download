@@ -51,7 +51,7 @@ export default function(sel, timings, icons) {
                         </li>
 
                         <li class="${sel.get('sett.settings_item')}">
-                            <button id="${sel.loaded_urls_mode_clear_control}">Очистить URL</button>
+                            <button id="${sel.loaded_urls_mode_clear_control}">Очистить <span></span> URL</button>
                         </li>
                     </ul>
                 </div>

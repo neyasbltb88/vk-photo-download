@@ -55,6 +55,7 @@ export default class PhotoDownload {
                 loaded_urls_mode: 'loaded_urls_mode',
                 settings_item: 'settings_item',
                 settings_item_action: 'settings_item_action',
+                // loaded_urls_counter: 'loaded_urls_counter',
 
                 settings_close_ico: 'settings_close_ico',
                 settings_section: 'settings_section',
@@ -363,6 +364,9 @@ export default class PhotoDownload {
 
         let check = this.loaded_urls.check(this.image_data.src);
         this.template.setLoadedUrl(this.wrap, this.settings.loaded_urls, check);
+
+        let counter_span = this.wrap.querySelector(`#${this.selectors.loaded_urls_mode_clear_control} span`);
+        counter_span.textContent = this.loaded_urls.length();
     }
 
     // --- LoadedUrl ---
