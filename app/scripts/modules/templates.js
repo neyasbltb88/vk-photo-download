@@ -72,7 +72,18 @@ export default class PhotoDownloadTemplates {
             };
         } // constructor
 
+    setWatchMode(wrap, watch_mode) {
+        if (!wrap) return null;
 
+        if (watch_mode) {
+            wrap.classList.add(this.sel.watch_mode);
+        } else {
+            wrap.classList.remove(this.sel.watch_mode);
+        }
+    }
+
+
+    // Метод, отмечающий скаченную ранее картинку желтой стрелкой и title
     setLoadedUrl(wrap, setting_active, check) {
         if (!wrap) return null;
 

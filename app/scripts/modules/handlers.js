@@ -25,10 +25,12 @@ export default class HandlersManager {
                 closeTimingSettings: () => this.PhotoDownload.state.settings = 'close',
                 downloadModeHandler: this._downloadModeHandler.bind(this),
                 showSizeHandler: this._showSizeHandler.bind(this),
-                downloadEffect: this.tempClass.bind(this, this.sel.get('btn.download_effect'), this.timings.settings_open + 250, `.${this.sel.get('btn.icon')}`),
+                downloadEffect: this.tempClass.bind(this, this.sel.get('btn.download_effect'), this.timings.open, `.${this.sel.get('btn.icon')}`),
                 loadedUrlsHandler: this._loadedUrlsHandler.bind(this),
                 addLoadedUrl: this._addLoadedUrl.bind(this),
                 clearLoadedUrls: () => this.PhotoDownload.loaded_urls.clear(),
+                watchModeHandler: this._watchModeHandler.bind(this),
+                watchEnterHandler: this._watchEnterHandler.bind(this),
             }
 
             this.timers = {
@@ -67,6 +69,10 @@ export default class HandlersManager {
 
         let loaded_urls_mode_clear_control = wrap.querySelector('#' + this.sel.get('loaded_urls_mode_clear_control'));
         this.set(loaded_urls_mode_clear_control, 'clearLoadedUrls', 'click');
+
+        // Обработчик изменения настройки режима быстрого скачивания
+        let watch_mode_control = wrap.querySelector('.' + this.sel.get('sett.watch_mode'));
+        this.set(watch_mode_control, 'watchModeHandler', 'change');
     }
 
     // Обновляет настройки в кнопке
@@ -102,6 +108,14 @@ export default class HandlersManager {
         let watch_mode_control = wrap.querySelector('#' + this.sel.watch_mode_control);
         watch_mode_control.checked = this.PhotoDownload.settings.watch_mode;
 
+        // Обработчик активированного режима быстрого скачивания. Будет следить за нажатием Enter
+        // let layer_wrap = document.querySelector('#pv_box');
+
+        if (this.PhotoDownload.settings.watch_mode) {
+            this.set(window, 'watchEnterHandler', 'keydown');
+        } else {
+            this.remove(window, 'watchEnterHandler', 'keydown');
+        }
     }
 
     // Обновляет визуальное состояние кнопки
@@ -302,6 +316,14 @@ export default class HandlersManager {
         return true;
     }
 
+    run(handler_name, param) {
+        let handler = this.getHandler(handler_name);
+        if (!handler_name || !handler) return false;
+        param = param ? param : this;
+
+        handler.call(this, param);
+    }
+
     // Удалить обработчик с переданным именем с элемента
     remove(elem, handler_name, event_name = this.default_event_name) {
         if (!elem || !handler_name || !this.getHandler(handler_name)) return false;
@@ -359,8 +381,28 @@ export default class HandlersManager {
         }, timeout);
     }
 
+    DownloadWork(url) {
+        Download(url);
+    }
+
     // === Обработчики ===
 
+    // Обработчик нажатия на Enter для режима быстрого скачивания
+    _watchEnterHandler(e) {
+        if (!this.PhotoDownload.wrap || e.keyCode !== 13) return;
+        let url = this.PhotoDownload.getImgData(true).src;
+
+        this.DownloadWork(url);
+        this.run('downloadEffect');
+        this.PhotoDownload._addLoadedUrl(url);
+    }
+
+    // Обработчик переключения режима настроек быстрого скачивания
+    _watchModeHandler(e) {
+        this.PhotoDownload.settings.watch_mode = e.target.checked;
+    }
+
+    // Обработчик, добавляющий адрес href кнопки в массив ранее скаченных url
     _addLoadedUrl(e) {
         let url = e.currentTarget.href;
         this.PhotoDownload._addLoadedUrl(url);
@@ -408,7 +450,7 @@ export default class HandlersManager {
     // Обработчик кнопки для режима скачивания
     _downloadHandler(e) {
         e.preventDefault();
-        Download(e.currentTarget.href);
+        this.DownloadWork(e.currentTarget.href);
 
         this.remove(e.currentTarget, 'downloadHandler');
         return false;

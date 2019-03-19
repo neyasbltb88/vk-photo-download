@@ -40,14 +40,46 @@ export default function(sel, timings, icons) {
         transform: translate3d(-100%, 0, 1px);
     }
 
+    /* Режим быстрого скачивания */
+    #${sel.photoDownload_id}.${sel.ready}.${sel.watch_mode},
+    .${sel.imgContainer_class}:hover #${sel.photoDownload_id}.${sel.watch_mode} {
+        opacity: .8;
+    }
+
+    #${sel.photoDownload_id}.${sel.ready}.${sel.watch_mode}:not(.${sel.non_size}) {
+        transform: translate3d(-100%, 0, 1px);
+    }
+
+    /* Режим быстрого скачивания при показе разрешения картинки и большой кнопке */
+    #${sel.photoDownload_id}.${sel.watch_mode}:not(.${sel.non_size}):not(.${sel.icon_cog}) .${sel.get('btn.btn')} {
+        border: 1px solid ${icons._colors.green} !important;
+        border-top-left-radius: 4px;
+    }
+    #${sel.photoDownload_id}.${sel.watch_mode}:not(.${sel.non_size}):not(.${sel.icon_cog}) .${sel.get('btn.btn')}.${sel.get('loaded_urls_active')} {
+        border: 1px solid ${icons._colors.yellow} !important;
+        border-top-left-radius: 4px;
+    }
+
+    /* Режим быстрого скачивания при отключенном показе разрешения и маленкой кнопке */
+    #${sel.photoDownload_id}.${sel.watch_mode}.${sel.non_size}:not(.${sel.icon_cog}) .${sel.get('btn.icon')} {
+        border: 1px solid ${icons._colors.green} !important;
+        border-top-left-radius: 4px;
+    }
+    #${sel.photoDownload_id}.${sel.watch_mode}.${sel.non_size}:not(.${sel.icon_cog}) .${sel.get('loaded_urls_active')} .${sel.get('btn.icon')} {
+        border: 1px solid ${icons._colors.yellow} !important;
+        border-top-left-radius: 4px;
+    }
+
+
     .${sel.get('btn.btn')} {
         display: flex;
         align-items: center;
         position: relative;
-        padding: 10px;
+        padding: 0 10px 0 0;
         background-color: #000;
         border-top-left-radius: 4px;
         color: #C3CFE0 !important;
+        box-sizing: border-box;
     }
 
     .${sel.get('btn.btn')}:hover {
@@ -61,6 +93,9 @@ export default function(sel, timings, icons) {
         height: 18px;
         width: 18px;
         position: relative;
+        padding: 9px;
+        background-size: 18px 18px;
+        background-position: center;
     }
 
     /* Эффект скачивания */
@@ -69,8 +104,8 @@ export default function(sel, timings, icons) {
         background-image: url('${icons.get('white', 'arrow')}');
         background-size: contain;
         background-repeat: no-repeat;
-        height: 90%;
-        width: 90%;
+        height: 18px;
+        width: 18px;
         position: absolute;
         left: 50%;
         top: 50%;
@@ -88,6 +123,11 @@ export default function(sel, timings, icons) {
 
     .${sel.get('btn.btn')}:hover .${sel.get('btn.icon')},
     .${sel.get('btn.btn')}:hover .${sel.get('btn.icon')}:before {
+        background-image: url('${icons.get('green', 'arrow')}');
+    }
+
+    .${sel.watch_mode} .${sel.get('btn.icon')},
+    .${sel.watch_mode} .${sel.get('btn.icon')}:before {
         background-image: url('${icons.get('green', 'arrow')}');
     }
 

@@ -32,6 +32,8 @@ export default class PhotoDownload {
             settings: 'settings',
             settings_open: 'settings_open',
 
+            watch_mode: 'watch_mode',
+
             draw: 'draw',
             draw_fill: 'draw_fill',
             icon_cog: 'icon_cog',
@@ -124,6 +126,11 @@ export default class PhotoDownload {
                     child: true,
                 },
             ], // Конец mouseover
+
+            keydown: [{
+                type: 'document',
+                handler: this._arrowHandler,
+            }], // Конец keydown
         };
 
         // Настройки поведения кнопки
@@ -176,6 +183,7 @@ export default class PhotoDownload {
             set loaded_urls(val) {
                 if (typeof val === 'boolean') {
                     this._loaded_urls = val;
+                    that._saveSettings();
                     that.handlers.setSettingsState();
                     that._checkLoadedUrl(true);
                 }
@@ -190,6 +198,7 @@ export default class PhotoDownload {
             set loaded_urls_PKM(val) {
                 if (typeof val === 'boolean') {
                     this._loaded_urls_PKM = val;
+                    that._saveSettings();
                     that.handlers.setSettingsState();
                 }
             }, // _loaded_urls_PKM
@@ -204,6 +213,11 @@ export default class PhotoDownload {
             set watch_mode(val) {
                 if (typeof val === 'boolean') {
                     this._watch_mode = val;
+                    that._saveSettings();
+
+                    let upd = that._updateBtn(document.querySelector('#' + that.imgContainer_id));
+                    if (upd === null) return null;
+
                     that.handlers.setSettingsState();
                 }
             }, // _watch_mode
@@ -341,19 +355,39 @@ export default class PhotoDownload {
             this.handlers.setHandlers();
         }
 
-        let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
+        // Если нужно, ставит на кнопку режим быстрого скачивания
+        this.template.setWatchMode(this.wrap, this.settings.watch_mode);
 
         // Получаем из недр ВК информацию о максимальной версии открытой в просмотрщике картинки
+        this.getImgData(true);
+    }
+
+    // Получение информации о текущей открытой картинке.
+    // Если в аргументе передан true, то обновляет данные в кнопке
+    getImgData(update) {
         this.image_data = window.Photoview.genData(window.cur.pvCurPhoto);
 
-        // Проверим, не был ли новый url ранее уже скачен
-        this._checkLoadedUrl();
+        if (update && this.wrap) {
+            let btn = this.wrap.querySelector('.' + this.selectors.get('btn.btn'));
 
-        // Обновим ссылку в кнопке
-        btn.href = this.image_data.src;
+            // Проверим, не был ли новый url ранее уже скачен
+            this._checkLoadedUrl();
 
-        // Установим информацию о размерах картинки, которая по ссылке
-        this.template.setSize(this.wrap, this.image_data, this.settings.show_size);
+            btn.href = this.image_data.src;
+
+            // Установим информацию о размерах картинки, которая по ссылке
+            this.template.setSize(this.wrap, this.image_data, this.settings.show_size);
+        }
+
+        return this.image_data;
+    }
+
+    _arrowHandler(e) {
+        if (!this.wrap || (e.keyCode !== 39 && e.keyCode !== 37)) return;
+
+        setTimeout(() => {
+            this.getImgData(true);
+        }, 0);
     }
 
     // === LoadedUrl ===
@@ -409,28 +443,20 @@ export default class PhotoDownload {
         triggers.forEach(trigger => {
             // Ищем обработчик для цели события
             // Если вернется false, то не найден
-            let compliance = this._checkComplianceTarget(target, trigger, event.type);
+            let compliance = this._checkComplianceTarget(target, trigger, event);
 
             // Если цели события нет в объекте обработчиков, но в обработчике указано, 
             // что он может срабатывать на дочернем элементе
             if (!compliance && trigger.child) {
                 // Попробуем найти родительский элемент цели, соответствующий селектору
                 // из объекта обработчиков
-                this._checkComplianceChild(target, trigger, event.type);
+                this._checkComplianceChild(target, trigger, event);
             }
         });
     }
 
     // Проверка на соответствие цели события с селекторами объекта триггеров
-    _checkComplianceTarget(target, trigger, type) {
-
-        if (type === 'click') {
-            console.log('_checkComplianceTarget', {
-                target,
-                trigger
-            });
-        }
-
+    _checkComplianceTarget(target, trigger, event) {
         let compliance = false;
 
         // Два отдельных условия для того, чтобы была возможность назначить
@@ -455,20 +481,19 @@ export default class PhotoDownload {
             }
         }
 
+        if (trigger.type === 'document') {
+            compliance = true;
+
+            if (trigger.handler) {
+                trigger.handler.call(this, event);
+            }
+        }
+
         return compliance;
     }
 
     // Проверка на то, является ли цель события дочерним элементом селектора из объекта триггеров
-    _checkComplianceChild(target, trigger, type) {
-
-        if (type === 'click') {
-            console.log('_checkComplianceChild', {
-                target,
-                trigger
-            });
-        }
-
-
+    _checkComplianceChild(target, trigger) {
         let parent = (trigger.type === 'id') ?
             target.closest('#' + trigger.selector) :
             target.closest('.' + trigger.selector);
